@@ -3,15 +3,15 @@ import { useDispatch, useSelector } from 'react-redux';
 import { login, reset } from '../redux/slices/authSlice';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Mail, Lock, Loader2, AlertCircle } from 'lucide-react';
+import { User, Lock, Loader2, AlertCircle } from 'lucide-react';
 
 const Login = () => {
   const [formData, setFormData] = useState({
-    email: '',
+    username: '',
     password: '',
   });
 
-  const { email, password } = formData;
+  const { username, password } = formData;
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -33,7 +33,7 @@ const Login = () => {
 
   const onSubmit = (e) => {
     e.preventDefault();
-    dispatch(login({ email, password }));
+    dispatch(login({ username, password }));
   };
 
   return (
@@ -63,16 +63,16 @@ const Login = () => {
 
           <form onSubmit={onSubmit} className="space-y-6">
             <div>
-              <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Email Address</label>
+              <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Username</label>
               <div className="relative">
-                <Mail className="absolute left-4 top-4 text-slate-300" size={20} />
+                <User className="absolute left-4 top-4 text-slate-300" size={20} />
                 <input
-                  type="email"
-                  name="email"
-                  value={email}
+                  type="text"
+                  name="username"
+                  value={username}
                   onChange={onChange}
                   className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-slate-900 placeholder-slate-300 focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all outline-none font-medium"
-                  placeholder="name@company.com"
+                  placeholder="Enter username"
                   required
                 />
               </div>

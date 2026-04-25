@@ -6,10 +6,15 @@ const User = require('../models/User');
 // @access  Public
 exports.register = async (req, res, next) => {
     try {
-        const { name, email, password, role } = req.body;
+        const { name, email, username, password, role } = req.body;
 
         // Check if user exists
-        const userExists = await User.findOne({ email });
+        const userExists = await User.findOne({ 
+            $or: [
+                { email: email || 'nevermatch' },
+                { username: username || 'nevermatch' }
+            ]
+        });
         if (userExists) {
             return res.status(400).json({ message: 'User already exists' });
         }
@@ -18,6 +23,7 @@ exports.register = async (req, res, next) => {
         const user = await User.create({
             name,
             email,
+            username,
             password,
             role
         });
@@ -33,15 +39,21 @@ exports.register = async (req, res, next) => {
 // @access  Public
 exports.login = async (req, res, next) => {
     try {
-        const { email, password } = req.body;
+        const { username, email, password } = req.body;
+        const identifier = username || email;
 
-        // Validate email & password
-        if (!email || !password) {
-            return res.status(400).json({ message: 'Please provide an email and password' });
+        // Validate identifier & password
+        if (!identifier || !password) {
+            return res.status(400).json({ message: 'Please provide credentials' });
         }
 
-        // Check for user
-        const user = await User.findOne({ email }).select('+password');
+        // Check for user (search by username OR email)
+        const user = await User.findOne({ 
+            $or: [
+                { username: identifier },
+                { email: identifier }
+            ]
+        }).select('+password');
 
         if (!user) {
             return res.status(401).json({ message: 'Invalid credentials' });
@@ -89,6 +101,7 @@ const sendTokenResponse = (user, statusCode, res) => {
             id: user._id,
             name: user.name,
             email: user.email,
+            username: user.username,
             role: user.role
         }
     });
