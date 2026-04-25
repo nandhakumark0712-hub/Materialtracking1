@@ -55,6 +55,18 @@ app.use('/api/performance', require('./routes/performanceRoutes'));
 app.use('/api/field-visits', require('./routes/fieldVisitRoutes'));
 app.use('/api/users', require('./routes/userRoutes'));
 
+// Serve static assets in production
+if (process.env.NODE_ENV === 'production') {
+    app.use(express.static(path.join(__dirname, '../frontend/dist')));
+    app.get('*', (req, res) =>
+        res.sendFile(path.resolve(__dirname, '../', 'frontend', 'dist', 'index.html'))
+    );
+} else {
+    app.get('/', (req, res) => {
+        res.send('API is running...');
+    });
+}
+
 // Socket.io connection
 io.on('connection', (socket) => {
     console.log('A user connected:', socket.id);
