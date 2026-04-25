@@ -6,15 +6,10 @@ const User = require('../models/User');
 // @access  Public
 exports.register = async (req, res, next) => {
     try {
-        const { name, email, username, password, role } = req.body;
+        const { name, username, password, role } = req.body;
 
         // Check if user exists
-        const userExists = await User.findOne({ 
-            $or: [
-                { email: email || 'nevermatch' },
-                { username: username || 'nevermatch' }
-            ]
-        });
+        const userExists = await User.findOne({ username });
         if (userExists) {
             return res.status(400).json({ message: 'User already exists' });
         }
@@ -22,7 +17,6 @@ exports.register = async (req, res, next) => {
         // Create user
         const user = await User.create({
             name,
-            email,
             username,
             password,
             role
@@ -47,12 +41,9 @@ exports.login = async (req, res, next) => {
             return res.status(400).json({ message: 'Please provide credentials' });
         }
 
-        // Check for user (search by username OR email)
+        // Check for user (search by username ONLY)
         const user = await User.findOne({ 
-            $or: [
-                { username: { $regex: new RegExp(`^${identifier}$`, 'i') } },
-                { email: identifier.toLowerCase() }
-            ]
+            username: { $regex: new RegExp(`^${identifier}$`, 'i') } 
         }).select('+password');
 
         if (!user) {
