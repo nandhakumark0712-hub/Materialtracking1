@@ -4,7 +4,7 @@
   "description": "Material Tracking System",
   "main": "backend/server.js",
   "scripts": {
-    "start": "npm start --prefix backend",
+    "start": "node backend/server.js",
     "build": "npm install --prefix backend && npm install --prefix frontend && npm run build --prefix frontend",
     "backend": "npm start --prefix backend",
     "frontend": "npm run dev --prefix frontend",
@@ -14,6 +14,19 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
-    "dotenv": "^16.0.0"
+    "bcryptjs": "^3.0.3",
+    "cloudinary": "^2.9.0",
+    "compression": "^1.8.1",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "express-validator": "^7.3.2",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.5.0",
+    "morgan": "^1.10.1",
+    "multer": "^2.1.1",
+    "nodemailer": "^8.0.5",
+    "socket.io": "^4.8.3"
   }
 }
