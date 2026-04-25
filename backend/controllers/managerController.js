@@ -10,7 +10,7 @@ const Notification = require('../models/Notification');
 // @access  Private/Manager
 exports.getTeam = async (req, res, next) => {
     try {
-        const users = await User.find({ role: 'Employee' }).select('-password');
+        const users = await User.find({ _id: { $ne: req.user.id } }).select('-password');
         
         const teamWithStats = await Promise.all(users.map(async (user) => {
             const [attendanceCount, totalTasks, completedTasks] = await Promise.all([
@@ -114,7 +114,7 @@ exports.getManagerStats = async (req, res, next) => {
             Task.countDocuments({ status: { $ne: 'Completed' } }),
             Leave.countDocuments({ status: 'Pending' }),
             MaterialRequest.countDocuments({ status: 'Pending' }),
-            User.countDocuments({ role: 'Employee' })
+            User.countDocuments({ _id: { $ne: req.user.id } })
         ]);
 
         res.status(200).json({
