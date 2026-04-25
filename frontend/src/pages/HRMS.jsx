@@ -34,7 +34,7 @@ const HRMS = () => {
   });
 
   const [formData, setFormData] = useState({
-    name: '', email: '', password: 'password123', role: 'Employee', phone: ''
+    name: '', username: '', password: 'password123', role: 'Employee', phone: ''
   });
 
   const [payrollForm, setPayrollForm] = useState({
@@ -92,7 +92,7 @@ const HRMS = () => {
       await API.post('/api/admin/users', formData);
       setIsModalOpen(false);
       fetchData();
-      setFormData({ name: '', email: '', password: 'password123', role: 'Employee', phone: '' });
+      setFormData({ name: '', username: '', password: 'password123', role: 'Employee', phone: '' });
       alert('Verification Complete: Employee successfully integrated into the corporate grid.');
     } catch (error) {
        alert(error.response?.data?.message || 'Onboarding failed.');
@@ -144,7 +144,7 @@ const HRMS = () => {
 
   const filteredEmployees = employees.filter(e => 
     e.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    e.email.toLowerCase().includes(searchTerm.toLowerCase())
+    (e.username && e.username.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   return (
@@ -294,7 +294,7 @@ const HRMS = () => {
                                 <div className="w-12 h-12 rounded-2xl bg-white border border-slate-100 flex items-center justify-center text-primary-500 shadow-sm font-black italic">{e.name.charAt(0)}</div>
                                 <div>
                                    <p className="font-black text-slate-900 group-hover:text-primary-500 transition-colors uppercase">{e.name}</p>
-                                   <p className="text-[10px] text-slate-400 font-bold">{e.email}</p>
+                                   <p className="text-[10px] text-slate-400 font-bold">{e.username}</p>
                                 </div>
                              </div>
                           </td>
@@ -504,7 +504,7 @@ const HRMS = () => {
                  <option>Employee</option><option>Manager</option><option>HR</option><option>Sales Team</option>
               </select>
            </div>
-           <input required type="email" className="input-field" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} placeholder="Email Connection" />
+           <input required type="text" className="input-field" value={formData.username} onChange={(e) => setFormData({...formData, username: e.target.value})} placeholder="Username" />
            <button type="submit" disabled={isSubmitting} className="w-full btn-primary py-4 mt-2">Authorize & Onboard Staff</button>
         </form>
       </Modal>

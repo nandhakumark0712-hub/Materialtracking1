@@ -23,7 +23,7 @@ const TeamManagement = () => {
 
   const [activeMenu, setActiveMenu] = useState(null);
   const [newStaff, setNewStaff] = useState({
-    name: '', email: '', password: 'password123', role: 'Employee', phone: '', employeeID: ''
+    name: '', username: '', password: 'password123', role: 'Employee', phone: '', employeeID: ''
   });
 
   useEffect(() => {
@@ -60,7 +60,7 @@ const TeamManagement = () => {
       setIsAssignModalOpen(false);
       await fetchTeam();
       alert('Mission Accomplished: New staff assigned to departmental grid.');
-      setNewStaff({ name: '', email: '', password: 'password123', role: 'Employee', phone: '', employeeID: '' });
+      setNewStaff({ name: '', username: '', password: 'password123', role: 'Employee', phone: '', employeeID: '' });
     } catch (error) {
       const msg = error.response?.data?.message || 'Authorization failed during staff provisioning.';
       alert(msg);
@@ -70,7 +70,7 @@ const TeamManagement = () => {
   };
 
   const filteredTeam = team.filter(m => {
-    const matchesSearch = m.name.toLowerCase().includes(searchTerm.toLowerCase()) || m.email.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = m.name.toLowerCase().includes(searchTerm.toLowerCase()) || (m.username && m.username.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesRole = activeFilter === 'All' || m.role === activeFilter;
     return matchesSearch && matchesRole;
   });
@@ -297,14 +297,14 @@ const TeamManagement = () => {
            </div>
            <div className="grid grid-cols-2 gap-4">
               <div>
-                 <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Email Address</label>
+                 <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Username</label>
                  <input 
                     required
-                    type="email"
+                    type="text"
                     className="input-field" 
-                    value={newStaff.email}
-                    onChange={(e) => setNewStaff({...newStaff, email: e.target.value})}
-                    placeholder="staff@company.com" 
+                    value={newStaff.username}
+                    onChange={(e) => setNewStaff({...newStaff, username: e.target.value})}
+                    placeholder="e.g. staff_member" 
                  />
               </div>
               <div>
