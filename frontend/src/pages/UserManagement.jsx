@@ -21,7 +21,7 @@ const UserManagement = () => {
   const [editUser, setEditUser] = useState(null);
   
    const [formData, setFormData] = useState({
-    name: '', email: '', password: 'password123', role: 'Employee', phone: '', employeeID: ''
+    name: '', username: '', password: 'password123', role: 'Employee', phone: '', employeeID: ''
   });
 
   useEffect(() => {
@@ -48,7 +48,7 @@ const UserManagement = () => {
     setEditUser(u);
     setFormData({
        name: u.name,
-       email: u.email,
+       username: u.username || '',
        role: u.role,
        phone: u.phone || '',
        employeeID: u.employeeID || ''
@@ -77,7 +77,7 @@ const UserManagement = () => {
       }
       setIsModalOpen(false);
       setEditUser(null);
-      setFormData({ name: '', email: '', password: 'password123', role: 'Employee', phone: '', employeeID: '' });
+      setFormData({ name: '', username: '', password: 'password123', role: 'Employee', phone: '', employeeID: '' });
       await fetchData(); // Ensure data is fully refreshed
     } catch (error) {
        alert(error.response?.data?.message || 'Authorization failed.');
@@ -101,7 +101,7 @@ const UserManagement = () => {
 
   const filteredUsers = users.filter(u => {
     const matchesSearch = u.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                         u.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (u.username && u.username.toLowerCase().includes(searchTerm.toLowerCase())) ||
                          (u.employeeID && u.employeeID.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesRole = activeFilter === 'All' || u.role === activeFilter;
     return matchesSearch && matchesRole;
@@ -135,7 +135,7 @@ const UserManagement = () => {
              <button 
                onClick={() => {
                  setEditUser(null);
-                 setFormData({ name: '', email: '', password: 'password123', role: 'Employee', phone: '', employeeID: '' });
+                 setFormData({ name: '', username: '', password: 'password123', role: 'Employee', phone: '', employeeID: '' });
                  setIsModalOpen(true);
                }} 
                className="btn-primary flex items-center space-x-3 px-8 py-4"
@@ -148,7 +148,7 @@ const UserManagement = () => {
              <div className="p-8 border-b border-slate-50 flex justify-between gap-6 bg-slate-50/20">
                 <div className="relative flex-1">
                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                   <input type="text" placeholder="Search by name, email or ID..." className="input-field pl-12 py-4" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
+                   <input type="text" placeholder="Search by name, username or ID..." className="input-field pl-12 py-4" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
                 </div>
              </div>
              <div className="overflow-x-auto">
@@ -169,7 +169,7 @@ const UserManagement = () => {
                                <div className="w-14 h-14 rounded-2xl bg-white border border-slate-100 text-primary-500 font-black flex items-center justify-center text-xl shadow-sm">{u.name.charAt(0)}</div>
                                <div>
                                   <p className="font-black text-slate-900 group-hover:text-primary-500 transition-colors uppercase">{u.name}</p>
-                                  <p className="text-[10px] text-slate-400 font-bold">{u.email}</p>
+                                  <p className="text-[10px] text-slate-400 font-bold uppercase">{u.username}</p>
                                </div>
                             </td>
                             <td className="px-8 py-6 font-bold text-slate-500 text-xs tracking-widest uppercase">{u.employeeID || 'NOT SET'}</td>
@@ -268,8 +268,8 @@ const UserManagement = () => {
            </div>
            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Identity Email</label>
-                 <input required type="email" className="input-field" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} placeholder="email@company.com" />
+                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Identity Username</label>
+                 <input required className="input-field" value={formData.username} onChange={e => setFormData({...formData, username: e.target.value})} placeholder="e.g. admin_staff" />
               </div>
               <div className="space-y-1">
                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">ID Number</label>

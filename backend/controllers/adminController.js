@@ -62,7 +62,7 @@ exports.createUser = async (req, res, next) => {
             user: req.user.id,
             action: 'CREATED_USER',
             module: 'Users',
-            details: `Created user ${user.email}`
+            details: `Created user ${user.username}`
         });
 
         res.status(201).json({ success: true, data: user });
@@ -89,7 +89,7 @@ exports.updateUser = async (req, res, next) => {
             user: req.user.id,
             action: 'UPDATED_USER',
             module: 'Users',
-            details: `Updated user ${user.email}`
+            details: `Updated user ${user.username}`
         });
 
         res.status(200).json({ success: true, data: user });
@@ -113,7 +113,7 @@ exports.deleteUser = async (req, res, next) => {
             user: req.user.id,
             action: 'DELETED_USER',
             module: 'Users',
-            details: `Deleted user ${user.email}`
+            details: `Deleted user ${user.username}`
         });
 
         res.status(200).json({ success: true, message: 'User deleted' });
