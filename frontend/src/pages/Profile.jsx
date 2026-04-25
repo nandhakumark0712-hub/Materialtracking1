@@ -198,7 +198,7 @@ const Profile = () => {
           <div className="relative group">
             <div className="w-40 h-40 rounded-[3rem] bg-white border-4 border-primary-500 overflow-hidden shadow-2xl transition-transform group-hover:scale-105 duration-500">
               <img 
-                src={imagePreview || (profileData?.profileImg ? `http://localhost:5000/uploads/field-visits/${profileData.profileImg}` : `https://ui-avatars.com/api/?name=${user?.name}&background=0ea5e9&color=fff&size=256`)} 
+                src={imagePreview || (profileData?.profileImg ? `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/uploads/field-visits/${profileData.profileImg}` : `https://ui-avatars.com/api/?name=${user?.name}&background=0ea5e9&color=fff&size=256`)} 
                 alt="Profile" 
                 className="w-full h-full object-cover"
               />

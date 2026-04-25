@@ -321,7 +321,7 @@ const FieldVisit = () => {
                     <div className="flex items-center space-x-6">
                       <div className="w-20 h-20 rounded-3xl bg-slate-50 flex items-center justify-center text-primary-500 border border-white shadow-sm overflow-hidden">
                          {visit.imageUrl ? (
-                           <img src={`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${visit.imageUrl}`} alt="visit" className="w-full h-full object-cover" />
+                           <img src={`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${visit.imageUrl && !visit.imageUrl.startsWith('/') ? '/' : ''}${visit.imageUrl}`} alt="visit" className="w-full h-full object-cover" />
                          ) : (
                            <User size={24} />
                          )}
