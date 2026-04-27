@@ -28,6 +28,11 @@ const taskSchema = new mongoose.Schema({
         default: 'Medium'
     },
     deadline: Date,
+    executionChecklist: [{
+        item: String,
+        isCompleted: { type: Boolean, default: false }
+    }],
+    auditReport: String,
     completedAt: Date
 }, {
     timestamps: true

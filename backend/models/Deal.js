@@ -20,6 +20,16 @@ const dealSchema = new mongoose.Schema({
         default: 'Pending'
     },
     expectedCloseDate: Date,
+    items: [{
+        material: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'Material'
+        },
+        quantity: {
+            type: Number,
+            default: 1
+        }
+    }],
     assignedTo: {
         type: mongoose.Schema.ObjectId,
         ref: 'User',

@@ -44,6 +44,8 @@ exports.updateTaskStatus = async (req, res, next) => {
         task.status = req.body.status;
         if (req.body.status === 'Completed') {
               task.completedAt = Date.now();
+              if (req.body.executionChecklist) task.executionChecklist = req.body.executionChecklist;
+              if (req.body.auditReport) task.auditReport = req.body.auditReport;
         }
 
         await task.save();

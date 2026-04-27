@@ -4,6 +4,7 @@ const FollowUp = require('../models/FollowUp');
 const User = require('../models/User');
 const Notification = require('../models/Notification');
 const mongoose = require('mongoose');
+const Material = require('../models/Material');
 
 // @desc    Get CRM Statistics
 // @route   GET /api/crm/stats
@@ -146,8 +147,22 @@ exports.updateDeal = async (req, res, next) => {
         }
 
         // Restrict 'Won' status to Approved deals only
-        if (req.body.status === 'Won' && deal.status !== 'Approved' && req.user.role !== 'Admin') {
-            return res.status(400).json({ message: 'Deal must be Approved by Admin before marking as Won' });
+        if (req.body.status === 'Won' && deal.status !== 'Approved' && !['Admin', 'Manager'].includes(req.user.role)) {
+            return res.status(400).json({ message: 'Deal must be Approved before marking as Won' });
+        }
+
+        // Handle stock deduction if status changes to Won
+        if (req.body.status === 'Won' && deal.status !== 'Won') {
+            for (const item of deal.items) {
+                const material = await Material.findById(item.material);
+                if (material) {
+                    if (material.quantity < item.quantity) {
+                        return res.status(400).json({ message: `Insufficient stock for ${material.name}` });
+                    }
+                    material.quantity -= item.quantity;
+                    await material.save();
+                }
+            }
         }
 
         deal = await Deal.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });

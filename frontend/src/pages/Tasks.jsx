@@ -23,7 +23,8 @@ const Tasks = () => {
     description: '',
     priority: 'Medium',
     deadline: '',
-    assignedTo: ''
+    assignedTo: '',
+    executionChecklist: []
   });
 
   const isManagement = ['Admin', 'Manager', 'HR'].includes(user?.role);
@@ -63,7 +64,7 @@ const Tasks = () => {
       await API.post('/api/tasks', form);
       setIsModalOpen(false);
       fetchTasks();
-      setForm({ title: '', description: '', priority: 'Medium', deadline: '', assignedTo: '' });
+      setForm({ title: '', description: '', priority: 'Medium', deadline: '', assignedTo: '', executionChecklist: [] });
     } catch (err) {
       alert(err.response?.data?.message || 'Error assigning task');
     } finally {
@@ -231,6 +232,40 @@ const Tasks = () => {
                <div>
                   <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Deadline Date</label>
                   <input required type="date" className="input-field" value={form.deadline} onChange={e => setForm({...form, deadline: e.target.value})} />
+               </div>
+            </div>
+
+            <div>
+               <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1 italic">Execution Checklist (A/C, Mobile Audit Steps)</label>
+               <div className="space-y-3">
+                  {form.executionChecklist.map((item, index) => (
+                     <div key={index} className="flex gap-2">
+                        <input 
+                           className="input-field flex-1" 
+                           value={item.item} 
+                           onChange={(e) => {
+                              const newChecklist = [...form.executionChecklist];
+                              newChecklist[index].item = e.target.value;
+                              setForm({...form, executionChecklist: newChecklist});
+                           }}
+                           placeholder="Step description (e.g. A/C unit installation check)"
+                        />
+                        <button 
+                           type="button"
+                           onClick={() => setForm({...form, executionChecklist: form.executionChecklist.filter((_, i) => i !== index)})}
+                           className="p-4 bg-rose-50 text-rose-500 rounded-xl"
+                        >
+                           <Trash2 size={16} />
+                        </button>
+                     </div>
+                  ))}
+                  <button 
+                     type="button"
+                     className="text-[10px] font-black text-primary-500 uppercase flex items-center"
+                     onClick={() => setForm({...form, executionChecklist: [...form.executionChecklist, { item: '', isCompleted: false }]})}
+                  >
+                     <Plus size={14} className="mr-2" /> Add Audit Step
+                  </button>
                </div>
             </div>
             <div>

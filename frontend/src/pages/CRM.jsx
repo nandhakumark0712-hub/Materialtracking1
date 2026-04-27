@@ -21,6 +21,7 @@ const CRM = () => {
   const [activeTab, setActiveTab] = useState('Overview');
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [materials, setMaterials] = useState([]);
   
   const [isLeadModalOpen, setIsLeadModalOpen] = useState(false);
   const [isManageLeadModalOpen, setIsManageLeadModalOpen] = useState(false);
@@ -37,7 +38,7 @@ const CRM = () => {
   });
 
   const [dealForm, setDealForm] = useState({
-    title: '', customer: '', value: 0, status: 'Pending'
+    title: '', customer: '', value: 0, status: 'Pending', items: []
   });
 
   const [followUpForm, setFollowUpForm] = useState({
@@ -56,7 +57,8 @@ const CRM = () => {
         API.get('/api/crm/stats'),
         API.get('/api/crm/followups'),
         API.get('/api/crm/leaderboard'),
-        API.get('/api/crm/pipeline')
+        API.get('/api/crm/pipeline'),
+        API.get('/api/materials')
       ]);
       setCustomers(resCust.data.data);
       setDeals(resDeals.data.data);
@@ -64,6 +66,11 @@ const CRM = () => {
       setFollowUps(resFollows.data.data);
       setLeaderboard(resLead.data.data);
       setPipelineData(resPipe.data.data);
+      setMaterials(resCust.data.data.materials || []); // Fallback for safety
+      
+      // Correcting materials fetch
+      const matRes = await API.get('/api/materials');
+      setMaterials(matRes.data.data);
       setLoading(false);
     } catch (err) {
       console.error(err);
@@ -103,7 +110,7 @@ const CRM = () => {
       await API.post('/api/crm/deals', dealForm);
       setIsDealModalOpen(false);
       fetchData();
-      setDealForm({ title: '', customer: '', value: 0, status: 'Pending' });
+      setDealForm({ title: '', customer: '', value: 0, status: 'Pending', items: [] });
     } catch (error) {
        alert(error.response?.data?.message || 'Error creating deal');
     } finally {
@@ -433,6 +440,61 @@ const CRM = () => {
                     </div>
                  </div>
               </div>
+
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">Deal Requirements (Items)</label>
+                   <button 
+                     type="button"
+                     className="text-primary-500 font-black text-[10px] uppercase"
+                     onClick={() => setDealForm({...dealForm, items: [...dealForm.items, { material: '', quantity: 1 }]})}
+                   >
+                     + Add Item
+                   </button>
+                </div>
+                {dealForm.items.map((item, index) => (
+                   <div key={index} className="grid grid-cols-12 gap-4 items-end">
+                      <div className="col-span-7">
+                         <select 
+                           className="input-field"
+                           value={item.material}
+                           onChange={(e) => {
+                              const newItems = [...dealForm.items];
+                              newItems[index].material = e.target.value;
+                              setDealForm({...dealForm, items: newItems});
+                           }}
+                         >
+                            <option value="">Select Item (A/C, Mobile, etc.)</option>
+                            {materials.map(m => (
+                               <option key={m._id} value={m._id}>{m.name} ({m.quantity} {m.unit} in stock)</option>
+                            ))}
+                         </select>
+                      </div>
+                      <div className="col-span-3">
+                         <input 
+                           type="number" 
+                           className="input-field" 
+                           placeholder="Qty" 
+                           value={item.quantity}
+                           onChange={(e) => {
+                              const newItems = [...dealForm.items];
+                              newItems[index].quantity = parseInt(e.target.value);
+                              setDealForm({...dealForm, items: newItems});
+                           }}
+                         />
+                      </div>
+                      <div className="col-span-2">
+                         <button 
+                           type="button"
+                           onClick={() => setDealForm({...dealForm, items: dealForm.items.filter((_, i) => i !== index)})}
+                           className="p-4 text-rose-500 hover:bg-rose-50 rounded-xl"
+                         >
+                            <Trash2 size={16} />
+                         </button>
+                      </div>
+                   </div>
+                ))}
+             </div>
            </div>
 
            <div className="lg:col-span-3 space-y-6">
@@ -684,8 +746,19 @@ const CRM = () => {
                   </div>
                   <h4 className="text-2xl font-black italic mb-1 leading-tight">{selectedDeal.title}</h4>
                   <p className="text-[10px] font-black uppercase text-white/40 tracking-widest italic">Prospect: {selectedDeal.customer?.name}</p>
-                  <div className="mt-8 pt-8 border-t border-white/5">
+                  <div className="mt-8 pt-8 border-t border-white/5 space-y-3">
                      <p className="text-4xl font-black text-primary-500">₹{selectedDeal.value.toLocaleString()}</p>
+                     {selectedDeal.items?.length > 0 && (
+                        <div className="pt-4 space-y-2">
+                           <p className="text-[10px] font-black uppercase text-white/20 tracking-widest">Linked Inventory</p>
+                           {selectedDeal.items.map((item, i) => (
+                              <div key={i} className="flex justify-between items-center bg-white/5 p-3 rounded-xl border border-white/5">
+                                 <span className="text-xs font-bold text-white/70">{item.material?.name || 'Loading item...'}</span>
+                                 <span className="text-xs font-black text-primary-500">{item.quantity} Units</span>
+                              </div>
+                           ))}
+                        </div>
+                     )}
                   </div>
                </div>
                
