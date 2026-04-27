@@ -7,7 +7,8 @@ import {
   Award, BarChart3, Star, Filter, ArrowUpRight,
   UserPlus, Zap, History, Bell, IndianRupee, Trash2, Edit, Inbox,
   ShieldCheck, XCircle, CheckCircle2, Building2, MapPin, 
-  ChevronRight, ChevronLeft, Info, Activity, User as UserIcon
+  ChevronRight, ChevronLeft, Info, Activity, User as UserIcon,
+  Tag, Layers, CreditCard, ShoppingCart
 } from 'lucide-react';
 import { Line, Bar, Doughnut } from 'react-chartjs-2';
 import API from '../utils/api';
@@ -51,6 +52,8 @@ const CRM = () => {
     source: 'Direct',
     productInterested: 'None',
     quantityRequired: 0,
+    unitPrice: 0,
+    budget: 0,
     budgetRange: '',
     expectedTimeline: '',
     deliveryLocation: '',
@@ -58,7 +61,7 @@ const CRM = () => {
     priority: 'Medium',
     status: 'New',
     estimatedDealValue: 0,
-    closeProbability: 0,
+    closeProbability: 50,
     nextFollowUpDate: '',
     preferredContactTime: '',
     assignedSalesExecutive: '',
@@ -77,6 +80,14 @@ const CRM = () => {
   useEffect(() => {
     fetchData();
   }, [activeTab]);
+
+  // Auto-calculate deal value
+  useEffect(() => {
+    const calculatedValue = (Number(leadForm.quantityRequired) || 0) * (Number(leadForm.unitPrice) || 0);
+    if (calculatedValue > 0) {
+        setLeadForm(prev => ({ ...prev, estimatedDealValue: calculatedValue }));
+    }
+  }, [leadForm.quantityRequired, leadForm.unitPrice]);
 
   const fetchData = async () => {
     try {
@@ -131,9 +142,9 @@ const CRM = () => {
     setLeadForm({
         name: '', contactPerson: '', jobTitle: '', email: '', phone: '', company: '', 
         industry: '', companySize: '', source: 'Direct', productInterested: 'None',
-        quantityRequired: 0, budgetRange: '', expectedTimeline: '', deliveryLocation: '',
-        installationRequired: false, priority: 'Medium', status: 'New', 
-        estimatedDealValue: 0, closeProbability: 0, nextFollowUpDate: '',
+        quantityRequired: 0, unitPrice: 0, budget: 0, budgetRange: '', expectedTimeline: '', 
+        deliveryLocation: '', installationRequired: false, priority: 'Medium', status: 'New', 
+        estimatedDealValue: 0, closeProbability: 50, nextFollowUpDate: '',
         preferredContactTime: '', assignedSalesExecutive: '', notes: '', score: 50
     });
   };
@@ -196,15 +207,6 @@ const CRM = () => {
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const pipelineChartData = {
-    labels: pipelineData.map(p => p._id),
-    datasets: [{
-      data: pipelineData.map(p => p.count),
-      backgroundColor: ['#0ea5e9', '#f59e0b', '#10b981', '#f43f5e', '#6366f1'],
-      borderWidth: 0
-    }]
   };
 
   const filteredLeads = customers.filter(c => 
@@ -444,7 +446,7 @@ const CRM = () => {
                  <h3 className="text-2xl font-black italic tracking-tight">Financial Pipeline</h3>
                  <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">Velocity tracking for pending and closed deal vectors</p>
               </div>
-              <button onClick={() => setIsDealModalOpen(true)} className="btn-primary px-8 py-4 flex items-center space-x-3 shadow-lg shadow-primary-500/20">
+              <button onClick={() => { setDealForm({ title: '', customer: '', value: 0, status: 'Pending', items: [] }); setIsDealModalOpen(true); }} className="btn-primary px-8 py-4 flex items-center space-x-3 shadow-lg shadow-primary-500/20">
                  <Plus size={20} />
                  <span className="font-black uppercase text-xs">New Opportunity</span>
               </button>
@@ -637,15 +639,18 @@ const CRM = () => {
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                      <div>
-                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1 italic">Est. Deal Value (INR)</label>
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1 italic">Unit Price (INR)</label>
                         <div className="relative">
                            <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={16} />
-                           <input type="number" className="input-field pl-12" value={leadForm.estimatedDealValue} onChange={e => setLeadForm({...leadForm, estimatedDealValue: Number(e.target.value)})} />
+                           <input type="number" className="input-field pl-12" value={leadForm.unitPrice} onChange={e => setLeadForm({...leadForm, unitPrice: Number(e.target.value)})} />
                         </div>
                      </div>
                      <div>
-                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1 italic">Close Probability (%)</label>
-                        <input type="number" className="input-field" value={leadForm.closeProbability} onChange={e => setLeadForm({...leadForm, closeProbability: Number(e.target.value)})} />
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1 italic">Est. Total Value (INR)</label>
+                        <div className="relative">
+                           <CreditCard className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={16} />
+                           <input type="number" className="input-field pl-12 bg-slate-50 font-black text-primary-600" value={leadForm.estimatedDealValue} readOnly />
+                        </div>
                      </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -658,12 +663,9 @@ const CRM = () => {
                         </select>
                      </div>
                      <div>
-                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1 italic">Current Lead Status</label>
-                        <select className="input-field" value={leadForm.status} onChange={e => setLeadForm({...leadForm, status: e.target.value})}>
-                           <option>New</option>
-                           <option>Contacted</option>
-                           <option>Qualified</option>
-                        </select>
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1 italic">Close Probability (%)</label>
+                        <input type="range" min="0" max="100" className="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-primary-500 mt-4" value={leadForm.closeProbability} onChange={e => setLeadForm({...leadForm, closeProbability: Number(e.target.value)})} />
+                        <div className="flex justify-between mt-2 font-black text-[9px] text-slate-400"><span>0%</span><span>{leadForm.closeProbability}%</span><span>100%</span></div>
                      </div>
                   </div>
                   <div className="flex gap-4">
@@ -732,120 +734,175 @@ const CRM = () => {
          </form>
       </Modal>
 
-      {/* Lead Management Modal */}
-      <Modal isOpen={isManageLeadModalOpen} onClose={() => setIsManageLeadModalOpen(false)} title="Prospect Management Dashboard">
+      {/* Prospect Management Dashboard Modal - COMPLETELY FIXED */}
+      <Modal isOpen={isManageLeadModalOpen} onClose={() => setIsManageLeadModalOpen(false)} title="Prospect Intelligence Dashboard">
          {selectedLead && (
-            <div className="space-y-8 pb-4">
-               <div className="bg-slate-900 p-8 md:p-10 rounded-[3rem] text-white relative overflow-hidden group">
-                  <div className="absolute top-0 right-0 w-40 h-40 bg-primary-500/10 rounded-full blur-3xl -mr-20 -mt-20 group-hover:bg-primary-500/20 transition-all duration-1000"></div>
-                  <div className="flex justify-between items-start mb-8">
-                     <div className="w-16 h-16 rounded-[2rem] bg-white text-primary-500 flex items-center justify-center text-3xl font-black italic shadow-2xl">
-                        {selectedLead.name.charAt(0)}
+            <div className="space-y-8 pb-4 animate-in zoom-in duration-300">
+               <div className="bg-slate-900 p-8 md:p-12 rounded-[3.5rem] text-white relative overflow-hidden group shadow-2xl">
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-primary-500/20 rounded-full blur-[100px] -mr-32 -mt-32 transition-all duration-1000 group-hover:scale-150"></div>
+                  <div className="absolute bottom-0 left-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-[60px] -ml-16 -mb-16"></div>
+                  
+                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
+                     <div className="flex items-center space-x-6">
+                        <div className="w-20 h-20 rounded-[2.5rem] bg-white text-primary-500 flex items-center justify-center text-4xl font-black italic shadow-2xl transform group-hover:rotate-6 transition-transform">
+                           {selectedLead.name.charAt(0)}
+                        </div>
+                        <div>
+                           <h4 className="text-3xl font-black italic tracking-tighter leading-none">{selectedLead.name}</h4>
+                           <p className="text-primary-500 font-black text-[10px] uppercase tracking-[0.3em] mt-3">{selectedLead.company || 'Autonomous Entity'}</p>
+                        </div>
                      </div>
-                     <div className="text-right">
-                        <p className="text-[10px] font-black uppercase text-primary-500 tracking-widest mb-1 italic">Est. Revenue Potential</p>
-                        <h4 className="text-3xl font-black italic tracking-tighter">₹{(selectedLead.estimatedDealValue || 0).toLocaleString()}</h4>
+                     <div className="bg-white/5 backdrop-blur-md border border-white/10 p-6 rounded-[2rem] text-right">
+                        <p className="text-[9px] font-black uppercase text-white/40 tracking-widest mb-1 italic">Est. Revenue Potential</p>
+                        <h4 className="text-4xl font-black italic tracking-tighter text-primary-500">₹{(selectedLead.estimatedDealValue || 0).toLocaleString()}</h4>
                      </div>
                   </div>
-                  <h4 className="text-2xl font-black italic mb-1 leading-tight">{selectedLead.name}</h4>
-                  <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-4 text-[10px] font-black uppercase tracking-widest text-white/40">
-                     <span className="flex items-center italic text-primary-500"><Building2 size={12} className="mr-2" /> {selectedLead.industry || 'General Industry'}</span>
-                     <span className="flex items-center"><UserIcon size={12} className="mr-2" /> {selectedLead.contactPerson || 'Direct'}</span>
-                     <span className="flex items-center"><MapPin size={12} className="mr-2" /> {selectedLead.deliveryLocation || 'Field'}</span>
+                  
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+                     {[
+                        { label: 'Industry', val: selectedLead.industry || 'General', icon: Building2 },
+                        { label: 'Source', val: selectedLead.source || 'Direct', icon: Target },
+                        { label: 'Priority', val: selectedLead.priority || 'Medium', icon: Award },
+                        { label: 'Contact', val: selectedLead.contactPerson || 'Direct', icon: UserIcon },
+                     ].map((item, i) => (
+                        <div key={i} className="flex items-center space-x-3 bg-white/5 p-4 rounded-2xl border border-white/5">
+                           <item.icon size={14} className="text-primary-500" />
+                           <div className="overflow-hidden">
+                              <p className="text-[8px] font-black uppercase text-white/30 tracking-widest leading-none mb-1">{item.label}</p>
+                              <p className="text-[10px] font-black truncate">{item.val}</p>
+                           </div>
+                        </div>
+                     ))}
                   </div>
                </div>
                
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="space-y-4">
-                     <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 italic">Intent & Requirement</label>
-                     <div className="bg-slate-50 p-6 rounded-[2rem] border border-slate-100">
-                        <div className="flex items-center justify-between mb-4">
-                           <span className="text-[9px] font-black uppercase text-slate-400">Product Line</span>
-                           <span className="text-xs font-black italic text-slate-900">{selectedLead.productInterested}</span>
-                        </div>
-                        <div className="flex items-center justify-between mb-4">
-                           <span className="text-[9px] font-black uppercase text-slate-400">Units Required</span>
-                           <span className="text-xs font-black italic text-slate-900">{selectedLead.quantityRequired} Units</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                           <span className="text-[9px] font-black uppercase text-slate-400">Timeline</span>
-                           <span className="text-xs font-black italic text-primary-500">{selectedLead.expectedTimeline || 'TBD'}</span>
+               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                  <div className="lg:col-span-2 space-y-8">
+                     <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-2 h-full bg-slate-50"></div>
+                        <h5 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 mb-8 flex items-center italic">
+                           <Layers className="mr-3 text-primary-500" size={16} /> Intent & Strategic Requirements
+                        </h5>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                           <div className="space-y-6">
+                              <div className="group">
+                                 <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest mb-2 italic">Primary Product Line</p>
+                                 <div className="flex items-center space-x-4">
+                                    <div className="w-10 h-10 rounded-xl bg-primary-50 flex items-center justify-center text-primary-500"><ShoppingCart size={18} /></div>
+                                    <p className="text-lg font-black text-slate-900 italic">{selectedLead.productInterested || 'Unspecified'}</p>
+                                 </div>
+                              </div>
+                              <div className="group">
+                                 <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest mb-2 italic">Mission Critical Timeline</p>
+                                 <div className="flex items-center space-x-4">
+                                    <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center text-amber-500"><Clock size={18} /></div>
+                                    <p className="text-lg font-black text-slate-900 italic">{selectedLead.expectedTimeline || 'TBD'}</p>
+                                 </div>
+                              </div>
+                           </div>
+                           
+                           <div className="space-y-6">
+                              <div className="group">
+                                 <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest mb-2 italic">Required Inventory Units</p>
+                                 <div className="flex items-center space-x-4">
+                                    <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-500"><Layers size={18} /></div>
+                                    <p className="text-lg font-black text-slate-900 italic">{selectedLead.quantityRequired || 0} Units <span className="text-[10px] text-slate-400 not-italic font-bold">(@ ₹{selectedLead.unitPrice || 0}/unit)</span></p>
+                                 </div>
+                              </div>
+                              <div className="group">
+                                 <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest mb-2 italic">Delivery Site Location</p>
+                                 <div className="flex items-center space-x-4">
+                                    <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-500"><MapPin size={18} /></div>
+                                    <p className="text-lg font-black text-slate-900 italic truncate">{selectedLead.deliveryLocation || 'Field Deployment'}</p>
+                                 </div>
+                              </div>
+                           </div>
                         </div>
                      </div>
+
+                     <div className="bg-slate-50 p-10 rounded-[3rem] border border-slate-200 border-dashed">
+                        <h5 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 mb-6 flex items-center italic">
+                           <MessageSquare className="mr-3 text-primary-500" size={16} /> Technical Notes & Intelligence
+                        </h5>
+                        <p className="text-slate-600 font-medium italic text-sm leading-relaxed">
+                           {selectedLead.notes || 'No specific mission remarks have been logged for this prospect matrix.'}
+                        </p>
+                     </div>
                   </div>
-                  <div className="space-y-4">
-                     <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 italic">Pipeline Status Matrix</label>
-                     <div className="grid grid-cols-3 gap-3">
-                        {['New', 'Qualified', 'Converted'].map(status => (
-                           <button 
-                              key={status}
-                              onClick={() => handleUpdateLead(selectedLead._id, { status })}
-                              className={`py-4 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all border ${
-                                 selectedLead.status === status 
-                                    ? 'bg-primary-500 text-white border-primary-500 shadow-xl shadow-primary-500/20' 
-                                    : 'bg-white text-slate-500 border-slate-100 hover:bg-slate-50'
-                              }`}
-                           >
-                              {status}
-                           </button>
-                        ))}
+
+                  <div className="space-y-8">
+                     <div className="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-sm">
+                        <h5 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center italic">
+                           <Activity className="mr-3 text-primary-500" size={14} /> Pipeline Velocity Matrix
+                        </h5>
+                        <div className="space-y-3">
+                           {['New', 'Qualified', 'Converted'].map(status => (
+                              <button 
+                                 key={status}
+                                 onClick={() => handleUpdateLead(selectedLead._id, { status })}
+                                 className={`w-full py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border flex justify-between items-center px-6 ${
+                                    selectedLead.status === status 
+                                       ? 'bg-primary-500 text-white border-primary-500 shadow-xl shadow-primary-500/20' 
+                                       : 'bg-white text-slate-400 border-slate-100 hover:bg-slate-50'
+                                 }`}
+                              >
+                                 {status}
+                                 {selectedLead.status === status && <CheckCircle size={14} />}
+                              </button>
+                           ))}
+                        </div>
+                     </div>
+
+                     <div className="bg-emerald-500 p-8 rounded-[3rem] text-white shadow-xl shadow-emerald-500/20 group cursor-pointer"
+                        onClick={() => {
+                           setDealForm({ 
+                               customer: selectedLead._id,
+                               title: `Commercial Agreement: ${selectedLead.name}`,
+                               value: selectedLead.estimatedDealValue,
+                               items: [{ material: '', quantity: selectedLead.quantityRequired }]
+                           });
+                           setIsDealModalOpen(true);
+                           setIsManageLeadModalOpen(false);
+                        }}
+                     >
+                        <div className="flex items-center justify-between mb-4">
+                           <ShieldCheck size={28} />
+                           <ArrowUpRight className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                        </div>
+                        <h5 className="text-xl font-black italic leading-tight">Authorize Conversion</h5>
+                        <p className="text-white/70 text-[9px] font-black uppercase tracking-widest mt-2">Transition Prospect to Commercial Deal</p>
                      </div>
                   </div>
                </div>
 
                {isManagement && (selectedLead.status === 'Qualified' || selectedLead.status === 'Converted') && selectedLead.approvalStatus !== 'Approved' && (
-                  <div className="space-y-4 p-8 bg-amber-50/30 rounded-[3rem] border border-amber-100 border-dashed">
-                     <div className="flex items-center space-x-3 mb-2">
-                        <Shield className="text-amber-500" size={18} />
-                        <label className="block text-[10px] font-black text-amber-600 uppercase tracking-widest italic">Administrative Authorization Protocol</label>
+                  <div className="p-10 bg-amber-50 rounded-[3.5rem] border border-amber-100 border-dashed animate-in fade-in slide-in-from-bottom duration-500">
+                     <div className="flex items-center space-x-4 mb-8">
+                        <div className="w-12 h-12 bg-amber-500 text-white rounded-2xl flex items-center justify-center shadow-lg"><Shield size={20} /></div>
+                        <div>
+                           <h5 className="text-sm font-black uppercase tracking-widest text-amber-900 italic">Administrative Authorization Protocol</h5>
+                           <p className="text-[10px] text-amber-600 font-bold">Authorization required for customer-base integration</p>
+                        </div>
                      </div>
-                     <div className="grid grid-cols-2 gap-4">
+                     <div className="grid grid-cols-2 gap-6">
                         <button 
                            onClick={() => handleApproveLead(selectedLead._id, 'Approved')}
-                           className="py-5 bg-emerald-500 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-600 transition-all flex items-center justify-center space-x-2 shadow-lg shadow-emerald-500/20"
+                           className="py-6 bg-emerald-500 text-white rounded-[2rem] text-xs font-black uppercase tracking-widest hover:bg-emerald-600 transition-all flex items-center justify-center space-x-3 shadow-xl shadow-emerald-500/30"
                         >
-                           <ShieldCheck size={18} />
-                           <span>Approve Lead</span>
+                           <CheckCircle2 size={20} />
+                           <span>Approve Matrix</span>
                         </button>
                         <button 
                            onClick={() => handleApproveLead(selectedLead._id, 'Rejected')}
-                           className="py-5 bg-rose-500 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-600 transition-all flex items-center justify-center space-x-2 shadow-lg shadow-rose-500/20"
+                           className="py-6 bg-rose-500 text-white rounded-[2rem] text-xs font-black uppercase tracking-widest hover:bg-rose-600 transition-all flex items-center justify-center space-x-3 shadow-xl shadow-rose-500/30"
                         >
-                           <XCircle size={18} />
-                           <span>Reject</span>
+                           <XCircle size={20} />
+                           <span>Reject Mission</span>
                         </button>
                      </div>
                   </div>
                )}
-
-               <div className="pt-6 border-t border-slate-100 flex gap-4">
-                  <button 
-                    className="flex-1 py-5 bg-slate-50 text-slate-400 rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-rose-100 hover:text-rose-600 transition-all flex items-center justify-center space-x-2 border border-slate-100"
-                    onClick={() => {
-                       if(window.confirm('Execute permanent deletion of lead matrix?')) {
-                          API.delete(`/api/crm/customers/${selectedLead._id}`).then(() => { setIsManageLeadModalOpen(false); fetchData(); });
-                       }
-                    }}
-                  >
-                     <Trash2 size={16} />
-                     <span>Purge Record</span>
-                  </button>
-                  <button 
-                    className="flex-1 py-5 bg-primary-500 text-white rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-primary-600 transition-all flex items-center justify-center space-x-2 shadow-lg shadow-primary-500/20"
-                    onClick={() => {
-                        setSelectedDeal({ 
-                            customer: selectedLead,
-                            title: `Deal with ${selectedLead.name}`,
-                            value: selectedLead.estimatedDealValue
-                        });
-                        setIsDealModalOpen(true);
-                        setIsManageLeadModalOpen(false);
-                    }}
-                  >
-                     <ArrowUpRight size={16} />
-                     <span>Convert to Deal</span>
-                  </button>
-               </div>
             </div>
          )}
       </Modal>

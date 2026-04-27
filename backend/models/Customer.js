@@ -46,6 +46,14 @@ const customerSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+    unitPrice: {
+        type: Number,
+        default: 0
+    },
+    budget: {
+        type: Number,
+        default: 0
+    },
     budgetRange: String,
     expectedTimeline: String,
     deliveryLocation: String,
