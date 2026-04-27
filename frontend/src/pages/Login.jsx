@@ -46,8 +46,8 @@ const Login = () => {
           <div className="inline-flex items-center justify-center w-20 h-20 bg-white rounded-3xl mb-4 shadow-2xl shadow-primary-500/40">
             <span className="text-primary-500 font-black text-4xl italic">S</span>
           </div>
-          <h2 className="text-4xl font-black text-white tracking-tight italic">SMT</h2>
-          <p className="text-white/80 font-medium mt-1">Material Tracking & Business System</p>
+          <h2 className="text-4xl font-black text-white tracking-tight italic">Smart Track</h2>
+          <p className="text-white/80 font-medium mt-1">Intelligent Material Management System</p>
         </div>
 
         <div className="bg-white p-10 rounded-[3rem] shadow-2xl shadow-slate-200 border border-white">
@@ -120,7 +120,7 @@ const Login = () => {
         </div>
         
         <p className="text-center mt-8 text-slate-400 text-xs font-bold uppercase tracking-widest opacity-50">
-          Powered by SMTBMS Enterprise
+          Powered by Smart Track Enterprise
         </p>
       </div>
     </div>

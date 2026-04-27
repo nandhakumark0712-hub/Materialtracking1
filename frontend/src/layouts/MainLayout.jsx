@@ -69,7 +69,7 @@ const MainLayout = () => {
             <div className="w-10 h-10 bg-primary-50 rounded-full flex items-center justify-center shadow-md">
               <span className="text-primary-500 font-extrabold text-xl">S</span>
             </div>
-            <span className="text-white font-black text-2xl tracking-tighter">SMT</span>
+            <span className="text-white font-black text-2xl tracking-tighter">Smart Track</span>
           </div>
           <button 
             onClick={() => setSidebarOpen(!isSidebarOpen)}
