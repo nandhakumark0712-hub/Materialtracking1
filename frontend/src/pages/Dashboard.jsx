@@ -5,7 +5,8 @@ import {
   Clock, Calendar, CheckCircle, Bell, Activity, ShieldCheck,
   Layers, UserCheck, Timer, LogOut, CheckCircle2, ListTodo,
   FileText, ExternalLink, ArrowRight, Briefcase, DollarSign,
-  UserPlus, UserMinus, HardHat, Zap, Download
+  UserPlus, UserMinus, HardHat, Zap, Download, Target, PieChart,
+  BarChart3, MessageSquare, Star, ShoppingCart, IndianRupee
 } from 'lucide-react';
 import {
   Chart as ChartJS,
@@ -25,9 +26,6 @@ import API from '../utils/api';
 import { format } from 'date-fns';
 import { Link } from 'react-router-dom';
 import KanbanBoard from '../components/KanbanBoard';
-import PerformanceWidget from '../components/PerformanceWidget';
-import SelfServiceWidget from '../components/SelfServiceWidget';
-import AssetWidget from '../components/AssetWidget';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend, Filler);
 
@@ -41,15 +39,10 @@ const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('Overview');
   const [employees, setEmployees] = useState([]);
   const [attendanceTrends, setAttendanceTrends] = useState({ days: [], counts: [] });
-  const [performanceData, setPerformanceData] = useState({ kpis: [], goals: [], rewards: [] });
-  const [essData, setEssData] = useState({ expenses: [], tickets: [], payslips: [] });
   const [assets, setAssets] = useState([]);
 
   useEffect(() => {
     fetchDashboardData();
-    if (user?.role === 'Employee') {
-      fetchAdvancedData();
-    }
   }, [user]);
 
   const fetchDashboardData = async () => {
@@ -82,10 +75,22 @@ const Dashboard = () => {
         setStats(statsRes.data.data);
         setEmployees(empRes.data.data);
         setAttendanceTrends(trendRes.data.data);
+      } else if (user?.role === 'Sales Team') {
+        const [crmRes, dealsRes, followRes] = await Promise.all([
+          API.get('/api/crm/stats'),
+          API.get('/api/crm/deals'),
+          API.get('/api/crm/followups')
+        ]);
+        setStats(crmRes.data.data);
+        setExtraData({
+          deals: dealsRes.data.data,
+          followups: followRes.data.data
+        });
       } else {
-        const [attRes, taskRes] = await Promise.all([
+        const [attRes, taskRes, materialRes] = await Promise.all([
           API.get('/api/attendance/my'),
-          API.get('/api/tasks/my')
+          API.get('/api/tasks/my'),
+          API.get('/api/materials').catch(() => ({ data: { data: [] } }))
         ]);
         const today = new Date().toISOString().split('T')[0];
         const attData = attRes.data?.data || [];
@@ -101,21 +106,13 @@ const Dashboard = () => {
            }
         });
         setExtraData(taskData);
+        setAssets(materialRes.data.data || []);
       }
       setLoading(false);
     } catch (error) {
       console.error('Dashboard Sync Error:', error);
       setError('Connection failure. Please ensure the backend server is operational.');
       setLoading(false);
-    }
-  };
-
-  const fetchAdvancedData = async () => {
-    try {
-      const { data } = await API.get('/api/materials').catch(() => ({ data: { data: [] } }));
-      setAssets(data.data || []);
-    } catch (err) {
-      console.error('Advanced Data Fetch Error:', err);
     }
   };
 
@@ -164,6 +161,196 @@ const Dashboard = () => {
   );
 
   if (!stats) return null;
+
+  // --- SALES TEAM VIEW (Professional CRM Dashboard) ---
+  if (user?.role === 'Sales Team') {
+     const revenueProgress = Math.min(((stats.revenueGenerated / stats.target) * 100).toFixed(0), 100);
+     
+     return (
+        <div className="space-y-8 animate-in fade-in duration-700">
+           {/* Professional CRM Greeting */}
+           <div className="bg-slate-900 p-8 md:p-12 rounded-[3.5rem] text-white shadow-2xl relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-primary-500/10 rounded-full blur-[100px] -mr-32 -mt-32 transition-all duration-1000 group-hover:scale-150"></div>
+              <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
+                 <div>
+                    <div className="flex items-center space-x-3 mb-4">
+                       <span className="px-4 py-1.5 bg-primary-500 text-white text-[9px] font-black uppercase tracking-widest rounded-full shadow-lg shadow-primary-500/20 italic">Sales Intelligence v4.0</span>
+                    </div>
+                    <h1 className="text-3xl md:text-5xl font-black italic tracking-tighter leading-tight">Welcome back, {user.name.split(' ')[0]}</h1>
+                    <p className="text-white/50 font-bold uppercase text-[10px] tracking-[0.3em] mt-3 flex items-center">
+                       <TrendingUp size={14} className="mr-2 text-primary-500" /> Revenue Mission Control / {format(new Date(), 'MMMM d, yyyy')}
+                    </p>
+                 </div>
+                 <div className="flex bg-white/5 backdrop-blur-md border border-white/10 p-6 md:p-8 rounded-[2.5rem] gap-8">
+                    <div className="text-center">
+                       <p className="text-[9px] font-black uppercase text-white/40 tracking-widest mb-1 italic">Conversion Rate</p>
+                       <h4 className="text-3xl font-black italic tracking-tighter text-emerald-400">{stats.conversionRate}%</h4>
+                    </div>
+                    <div className="w-px bg-white/10 h-10 self-center"></div>
+                    <div className="text-center">
+                       <p className="text-[9px] font-black uppercase text-white/40 tracking-widest mb-1 italic">Monthly Yield</p>
+                       <h4 className="text-3xl font-black italic tracking-tighter text-primary-500">₹{(stats.revenueGenerated/1000).toFixed(0)}k</h4>
+                    </div>
+                 </div>
+              </div>
+           </div>
+
+           {/* Summary KPI Matrix */}
+           <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+              {[
+                { label: 'Total Leads', val: stats.totalLeads, icon: UserPlus, color: 'text-blue-500', bg: 'bg-blue-50' },
+                { label: 'Qualified Prospects', val: stats.prospects, icon: Target, color: 'text-indigo-500', bg: 'bg-indigo-50' },
+                { label: 'Active Pipeline', val: stats.activeDeals, icon: Briefcase, color: 'text-amber-500', bg: 'bg-amber-50' },
+                { label: 'Deals Won', val: stats.wonDeals, icon: Trophy, color: 'text-emerald-500', bg: 'bg-emerald-50' },
+                { label: 'Pipeline Value', val: `₹${(stats.pipelineValue/1000).toFixed(0)}k`, icon: IndianRupee, color: 'text-primary-500', bg: 'bg-primary-50' },
+              ].map((s, i) => (
+                <div key={i} className="bg-white p-6 md:p-8 rounded-[2.5rem] shadow-sm border border-slate-100 hover:shadow-xl transition-all group">
+                   <div className={`w-12 h-12 ${s.bg} ${s.color} rounded-2xl flex items-center justify-center mb-6 transition-transform group-hover:rotate-6`}>
+                      {s.icon === Trophy ? <Award size={22} /> : <s.icon size={22} />}
+                   </div>
+                   <p className="text-slate-400 text-[9px] font-black uppercase tracking-widest italic">{s.label}</p>
+                   <h3 className="text-2xl md:text-3xl font-black text-slate-900 mt-1">{s.val}</h3>
+                </div>
+              ))}
+           </div>
+
+           {/* Analytics Row */}
+           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <div className="lg:col-span-2 bg-white p-10 rounded-[4rem] shadow-sm border border-slate-100">
+                 <div className="flex items-center justify-between mb-10">
+                    <h3 className="text-xl font-black italic flex items-center"><BarChart3 className="mr-3 text-primary-500" /> Revenue Stream Overview</h3>
+                    <div className="flex items-center space-x-2">
+                       <div className="w-3 h-3 rounded-full bg-primary-500"></div>
+                       <span className="text-[10px] font-black uppercase text-slate-400 italic">Yield Progression</span>
+                    </div>
+                 </div>
+                 <div className="h-80">
+                    <Bar 
+                       data={{
+                          labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                          datasets: [{
+                             label: 'Revenue',
+                             data: [stats.revenueGenerated * 0.2, stats.revenueGenerated * 0.5, stats.revenueGenerated * 0.8, stats.revenueGenerated],
+                             backgroundColor: '#ff6d2e',
+                             borderRadius: 12,
+                             barThickness: 40
+                          }]
+                       }}
+                       options={{
+                          responsive: true,
+                          maintainAspectRatio: false,
+                          plugins: { legend: { display: false } },
+                          scales: { y: { display: false }, x: { grid: { display: false } } }
+                       }}
+                    />
+                 </div>
+              </div>
+
+              <div className="bg-white p-10 rounded-[4rem] shadow-sm border border-slate-100 flex flex-col items-center">
+                 <h3 className="text-xl font-black italic mb-10 w-full text-left"><PieChart className="mr-3 text-primary-500 inline" /> Lead Funnel</h3>
+                 <div className="h-64 w-full relative">
+                    <Doughnut 
+                       data={{
+                          labels: ['Leads', 'Prospects', 'Deals'],
+                          datasets: [{
+                             data: [stats.totalLeads, stats.prospects, stats.activeDeals],
+                             backgroundColor: ['#0ea5e9', '#6366f1', '#ff6d2e'],
+                             borderWidth: 0,
+                             cutout: '80%'
+                          }]
+                       }}
+                       options={{ 
+                          maintainAspectRatio: false, 
+                          plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { weight: 'bold' } } } } 
+                       }}
+                    />
+                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none -mt-6">
+                       <span className="text-3xl font-black text-slate-900">{stats.totalLeads + stats.prospects + stats.activeDeals}</span>
+                       <span className="text-[8px] font-black uppercase text-slate-400 tracking-[0.2em]">Active Matrix</span>
+                    </div>
+                 </div>
+              </div>
+           </div>
+
+           {/* Operational Table & Widgets */}
+           <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+              <div className="xl:col-span-2 bg-white p-10 rounded-[4rem] shadow-sm border border-slate-100">
+                 <div className="flex justify-between items-center mb-8">
+                    <h3 className="text-xl font-black italic flex items-center"><Zap className="mr-3 text-primary-500" /> Recent Opportunity Log</h3>
+                    <Link to="/crm" className="text-[10px] font-black text-primary-500 uppercase tracking-widest hover:underline">Full Pipeline</Link>
+                 </div>
+                 <div className="space-y-4">
+                    {extraData.deals?.slice(0, 5).map(deal => (
+                       <div key={deal._id} className="flex items-center justify-between p-6 bg-slate-50/50 rounded-[2.5rem] border border-white hover:border-slate-100 transition-all group">
+                          <div className="flex items-center space-x-5">
+                             <div className="w-12 h-12 rounded-2xl bg-white border border-slate-100 text-primary-500 flex items-center justify-center font-black italic shadow-sm group-hover:bg-primary-500 group-hover:text-white transition-all">
+                                {deal.title.charAt(0)}
+                             </div>
+                             <div>
+                                <p className="font-black text-slate-900 text-sm italic">{deal.title}</p>
+                                <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mt-1">{deal.customer?.name} • {deal.status}</p>
+                             </div>
+                          </div>
+                          <div className="text-right">
+                             <p className="font-black text-slate-900 italic">₹{(deal.value/1000).toFixed(0)}k</p>
+                             <span className="text-[8px] font-black uppercase text-primary-500 tracking-widest">Revenue Potential</span>
+                          </div>
+                       </div>
+                    ))}
+                    {extraData.deals?.length === 0 && <p className="text-center py-10 text-slate-400 font-black italic text-xs uppercase tracking-widest">Awaiting deal telemetry.</p>}
+                 </div>
+              </div>
+
+              <div className="space-y-8">
+                 {/* Follow-up Widget */}
+                 <div className="bg-slate-900 p-10 rounded-[3.5rem] text-white shadow-2xl relative overflow-hidden group">
+                    <div className="absolute -top-10 -right-10 w-40 h-40 bg-primary-500/10 rounded-full blur-3xl group-hover:scale-150 transition-all duration-1000"></div>
+                    <div className="flex justify-between items-center mb-8 relative z-10">
+                       <h3 className="text-lg font-black italic uppercase tracking-tighter">Strategic Outreach</h3>
+                       <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center text-primary-500 font-black">{stats.followUpsToday}</div>
+                    </div>
+                    <div className="space-y-4 relative z-10">
+                       {extraData.followups?.filter(f => f.status === 'Pending').slice(0, 3).map(follow => (
+                          <div key={follow._id} className="p-5 bg-white/5 hover:bg-white/10 rounded-[2rem] border border-white/5 transition-all">
+                             <div className="flex items-center space-x-4">
+                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${follow.type === 'Call' ? 'bg-blue-500/20 text-blue-400' : 'bg-indigo-500/20 text-indigo-400'}`}>
+                                   {follow.type === 'Call' ? <Phone size={18} /> : <Users size={18} />}
+                                </div>
+                                <div>
+                                   <p className="text-xs font-black italic">{follow.title}</p>
+                                   <p className="text-[9px] font-black uppercase text-white/30 tracking-widest mt-1">Lead: {follow.lead?.name || 'N/A'}</p>
+                                </div>
+                             </div>
+                          </div>
+                       ))}
+                       {extraData.followups?.length === 0 && <p className="text-white/20 font-black uppercase text-[9px] tracking-widest italic text-center py-6">No pending outreach missions.</p>}
+                    </div>
+                 </div>
+
+                 {/* Target Progress Widget */}
+                 <div className="bg-white p-10 rounded-[3.5rem] border border-slate-100 shadow-sm">
+                    <div className="flex justify-between items-center mb-6">
+                       <h3 className="text-lg font-black italic uppercase tracking-tighter">Yield Target</h3>
+                       <Target className="text-primary-500" size={20} />
+                    </div>
+                    <div className="space-y-6">
+                       <div className="flex justify-between items-end">
+                          <div>
+                             <p className="text-4xl font-black italic text-slate-900">{revenueProgress}%</p>
+                             <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1 italic">Of ₹{(stats.target/1000).toFixed(0)}k Objective</p>
+                          </div>
+                          <TrendingUp className="text-emerald-500 mb-2" size={24} />
+                       </div>
+                       <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden shadow-inner">
+                          <div className="h-full bg-primary-500 shadow-lg shadow-primary-500/50 transition-all duration-1000" style={{ width: `${revenueProgress}%` }}></div>
+                       </div>
+                    </div>
+                 </div>
+              </div>
+           </div>
+        </div>
+     );
+  }
 
   // --- ADMIN VIEW ---
   if (user?.role === 'Admin' && stats) {
@@ -547,12 +734,31 @@ const Dashboard = () => {
 
         {activeTab === 'Logistics' && (
            <div className="animate-in slide-in-from-bottom duration-500">
-              <AssetWidget assets={assets} />
+              {/* Asset list */}
+              <div className="bg-white p-10 rounded-[4rem] border border-slate-100">
+                 <h3 className="text-xl font-black italic mb-8">Assigned Resource Inventory</h3>
+                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {assets.map((asset, i) => (
+                       <div key={i} className="p-6 bg-slate-50 rounded-3xl border border-white flex justify-between items-center">
+                          <div>
+                             <p className="font-black text-slate-900 uppercase text-xs">{asset.name}</p>
+                             <p className="text-[10px] font-black text-slate-400 mt-1 uppercase">{asset.category || 'Asset'}</p>
+                          </div>
+                          <div className="text-right">
+                             <p className="text-sm font-black text-primary-500 italic">{asset.quantity}</p>
+                             <span className="text-[8px] font-black uppercase text-slate-300">Units</span>
+                          </div>
+                       </div>
+                    ))}
+                 </div>
+              </div>
            </div>
         )}
       </div>
     </div>
   );
 };
+
+const Trophy = (props) => <Star {...props} />;
 
 export default Dashboard;

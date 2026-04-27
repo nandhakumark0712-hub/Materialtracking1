@@ -13,8 +13,12 @@ exports.getCRMStats = async (req, res, next) => {
     try {
         const query = req.user.role === 'Admin' ? {} : { assignedTo: new mongoose.Types.ObjectId(req.user.id) };
         
-        const totalLeads = await Customer.countDocuments({ ...query, status: { $ne: 'Converted' } });
+        const totalLeads = await Customer.countDocuments({ ...query, status: 'New' });
+        const prospects = await Customer.countDocuments({ ...query, status: 'Qualified' });
         const activeDeals = await Deal.countDocuments({ ...query, status: { $in: ['Pending', 'Approved'] } });
+        const wonDeals = await Deal.countDocuments({ ...query, status: 'Won' });
+        const lostDeals = await Deal.countDocuments({ ...query, status: 'Lost' });
+        
         const followUpsToday = await FollowUp.countDocuments({ 
             ...query, 
             status: 'Pending',
@@ -26,13 +30,27 @@ exports.getCRMStats = async (req, res, next) => {
             { $group: { _id: null, total: { $sum: "$value" } } }
         ]);
 
+        const pipelineValue = await Deal.aggregate([
+            { $match: { ...query, status: { $in: ['Pending', 'Approved'] } } },
+            { $group: { _id: null, total: { $sum: "$value" } } }
+        ]);
+
+        const totalAttempts = wonDeals + lostDeals;
+        const conversionRate = totalAttempts > 0 ? ((wonDeals / totalAttempts) * 100).toFixed(1) : 0;
+
         res.status(200).json({
             success: true,
             data: {
                 totalLeads,
+                prospects,
                 activeDeals,
+                wonDeals,
+                lostDeals,
                 followUpsToday,
-                revenueExpected: revenue.length > 0 ? revenue[0].total : 0
+                revenueGenerated: revenue.length > 0 ? revenue[0].total : 0,
+                pipelineValue: pipelineValue.length > 0 ? pipelineValue[0].total : 0,
+                conversionRate,
+                target: 1000000 // Sample target
             }
         });
     } catch (err) {
