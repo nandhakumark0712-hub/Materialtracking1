@@ -79,24 +79,24 @@ const TeamManagement = () => {
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div>
-          <h1 className="text-4xl font-black text-slate-900 tracking-tight italic">Team Hub</h1>
-          <p className="text-slate-500 font-medium mt-1">Real-time oversight of department performance and staff status.</p>
+          <h1 className="text-2xl md:text-4xl font-black text-slate-900 tracking-tight italic">Team Hub</h1>
+          <p className="text-slate-500 font-medium mt-1 text-xs md:text-sm">Real-time oversight of department performance and staff status.</p>
         </div>
         
-        <div className="flex flex-col md:flex-row gap-4 flex-1 lg:max-w-xl justify-end">
-           <div className="relative flex-1">
+        <div className="flex flex-col sm:flex-row gap-4 flex-1 lg:max-w-xl justify-end w-full">
+           <div className="relative flex-1 w-full">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
               <input 
                 type="text" 
-                placeholder="Search team by name..." 
-                className="input-field pl-12 py-4 bg-white shadow-sm"
+                placeholder="Search team..." 
+                className="w-full input-field pl-12 py-3 md:py-4 bg-white shadow-sm text-sm md:text-base"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
            </div>
            <button 
               onClick={() => setIsFilterOpen(true)}
-              className="flex items-center justify-center space-x-2 px-6 bg-white border border-slate-100 rounded-2xl shadow-sm hover:shadow-md transition-all text-slate-600 font-bold"
+              className="flex items-center justify-center space-x-2 px-6 py-3 md:py-0 bg-white border border-slate-100 rounded-xl md:rounded-2xl shadow-sm hover:shadow-md transition-all text-slate-600 font-bold text-xs md:text-base"
            >
               <Filter size={18} className={activeFilter !== 'All' ? 'text-primary-500' : ''} />
               <span>{activeFilter === 'All' ? 'Filter' : activeFilter}</span>
@@ -104,27 +104,27 @@ const TeamManagement = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-         <div className="bg-primary-500 p-6 rounded-[2.5rem] text-white shadow-xl shadow-primary-500/20 flex items-center justify-between">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
+         <div className="bg-primary-500 p-4 md:p-6 rounded-[1.5rem] md:rounded-[2.5rem] text-white shadow-xl shadow-primary-500/20 flex items-center justify-between">
             <div>
-               <p className="text-white/70 text-xs font-black uppercase tracking-widest">Total Staff</p>
-               <h3 className="text-3xl font-black mt-1">{team.length}</h3>
+               <p className="text-white/70 text-[10px] md:text-xs font-black uppercase tracking-widest">Total Staff</p>
+               <h3 className="text-2xl md:text-3xl font-black mt-1">{team.length}</h3>
             </div>
-            <div className="p-4 bg-white/20 rounded-2xl"><Users size={28} /></div>
+            <div className="p-3 md:p-4 bg-white/20 rounded-xl md:rounded-2xl"><Users size={24} md:size={28} /></div>
          </div>
-         <div className="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100 flex items-center justify-between">
+         <div className="bg-white p-4 md:p-6 rounded-[1.5rem] md:rounded-[2.5rem] shadow-sm border border-slate-100 flex items-center justify-between">
             <div>
-               <p className="text-slate-400 text-xs font-black uppercase tracking-widest">Active Today</p>
-               <h3 className="text-3xl font-black text-slate-900 mt-1">{teamSummary.activeToday}</h3>
+               <p className="text-slate-400 text-[10px] md:text-xs font-black uppercase tracking-widest">Active Today</p>
+               <h3 className="text-2xl md:text-3xl font-black text-slate-900 mt-1">{teamSummary.activeToday}</h3>
             </div>
-            <div className="p-4 bg-emerald-50 text-emerald-600 rounded-2xl"><UserCheck size={28} /></div>
+            <div className="p-3 md:p-4 bg-emerald-50 text-emerald-600 rounded-xl md:rounded-2xl"><UserCheck size={24} md:size={28} /></div>
          </div>
-         <div className="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100 flex items-center justify-between">
+         <div className="bg-white p-4 md:p-6 rounded-[1.5rem] md:rounded-[2.5rem] shadow-sm border border-slate-100 flex items-center justify-between">
             <div>
-               <p className="text-slate-400 text-xs font-black uppercase tracking-widest">Avg Performance</p>
-               <h3 className="text-3xl font-black text-slate-900 mt-1">{teamSummary.avgPerformance}</h3>
+               <p className="text-slate-400 text-[10px] md:text-xs font-black uppercase tracking-widest">Avg Performance</p>
+               <h3 className="text-2xl md:text-3xl font-black text-slate-900 mt-1">{teamSummary.avgPerformance}</h3>
             </div>
-            <div className="p-4 bg-amber-50 text-amber-600 rounded-2xl"><Award size={28} /></div>
+            <div className="p-3 md:p-4 bg-amber-50 text-amber-600 rounded-xl md:rounded-2xl"><Award size={24} md:size={28} /></div>
          </div>
       </div>
 

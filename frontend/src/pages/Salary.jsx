@@ -66,8 +66,8 @@ const Salary = () => {
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h1 className="text-4xl font-black text-slate-900 tracking-tight italic">Financial Ledger</h1>
-          <p className="text-slate-500 font-medium mt-1">Review your personal payroll, bonuses, and tax deductions.</p>
+          <h1 className="text-2xl md:text-4xl font-black text-slate-900 tracking-tight italic">Financial Ledger</h1>
+          <p className="text-slate-500 font-medium mt-1 text-xs md:text-sm">Review your personal payroll, bonuses, and tax deductions.</p>
         </div>
         <div className="bg-white px-8 py-4 rounded-[2rem] border border-slate-100 shadow-sm flex items-center space-x-4">
            <div className="w-10 h-10 bg-emerald-50 text-emerald-500 rounded-xl flex items-center justify-center">
@@ -80,23 +80,23 @@ const Salary = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
          {[
            { label: 'Total Payout', val: `₹${(totalEarnings/1000).toFixed(1)}K`, icon: Wallet, color: 'emerald', sub: 'Cumulative' },
            { label: 'Last Disbursed', val: payroll[0] ? `₹${(payroll[0].netSalary/1000).toFixed(1)}K` : '₹0', icon: CreditCard, color: 'primary', sub: payroll[0]?.month || 'N/A' },
            { label: 'YTD Growth', val: '+12.5%', icon: TrendingUp, color: 'amber', sub: 'Projected' },
            { label: 'Tax Registry', val: 'Digital', icon: FileCheck, color: 'rose', sub: 'Form 16' },
          ].map((s, i) => (
-           <div key={i} className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 hover:shadow-xl transition-all group">
-              <div className="flex justify-between items-start mb-6">
-                 <div className="w-12 h-12 bg-slate-50 text-slate-400 group-hover:text-emerald-500 rounded-2xl flex items-center justify-center transition-colors">
-                    <s.icon size={22} />
+           <div key={i} className="bg-white p-4 md:p-8 rounded-[1.5rem] md:rounded-[2.5rem] shadow-sm border border-slate-100 hover:shadow-xl transition-all group">
+              <div className="flex justify-between items-start mb-4 md:mb-6">
+                 <div className="w-10 h-10 md:w-12 md:h-12 bg-slate-50 text-slate-400 group-hover:text-emerald-500 rounded-xl md:rounded-2xl flex items-center justify-center transition-colors">
+                    <s.icon size={20} md:size={22} />
                  </div>
-                 <ArrowUpRight size={18} className="text-slate-200" />
+                 <ArrowUpRight size={16} md:size={18} className="text-slate-200" />
               </div>
-              <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest italic leading-none mb-2">{s.label}</p>
-              <h3 className="text-3xl font-black text-slate-900 leading-none mb-2">{s.val}</h3>
-              <p className="text-slate-400 text-[9px] font-bold uppercase tracking-widest italic">{s.sub}</p>
+              <p className="text-slate-500 text-[8px] md:text-[10px] font-black uppercase tracking-widest italic leading-none mb-2">{s.label}</p>
+              <h3 className="text-xl md:text-3xl font-black text-slate-900 leading-none mb-2">{s.val}</h3>
+              <p className="text-slate-400 text-[8px] md:text-[9px] font-bold uppercase tracking-widest italic">{s.sub}</p>
            </div>
          ))}
       </div>
@@ -113,7 +113,7 @@ const Salary = () => {
             </button>
          </div>
          <div className="overflow-x-auto">
-            <table className="w-full text-left">
+            <table className="w-full text-left min-w-[700px]">
                <thead className="bg-slate-50 text-slate-400 text-[10px] uppercase font-black tracking-widest">
                   <tr>
                      <th className="px-8 py-6 italic">Billing Cycle</th>

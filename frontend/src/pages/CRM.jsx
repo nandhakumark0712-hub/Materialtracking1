@@ -295,7 +295,7 @@ const CRM = () => {
               </div>
            </div>
            <div className="overflow-x-auto">
-              <table className="w-full text-left">
+              <table className="w-full text-left min-w-[800px]">
                  <thead className="bg-slate-50 text-slate-400 text-[10px] uppercase font-black tracking-widest">
                     <tr>
                        <th className="px-8 py-6 italic">Prospect Entity</th>

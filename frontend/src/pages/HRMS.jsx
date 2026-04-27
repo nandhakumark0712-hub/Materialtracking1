@@ -277,7 +277,7 @@ const HRMS = () => {
            </div>
            
            <div className="overflow-x-auto">
-              <table className="w-full text-left">
+              <table className="w-full text-left min-w-[900px]">
                  <thead className="bg-slate-50 text-slate-400 text-[10px] uppercase font-black tracking-widest">
                     <tr>
                        <th className="px-8 py-6 italic">Identity</th>
@@ -337,7 +337,7 @@ const HRMS = () => {
                  <h3 className="text-xl font-black italic">Recent Disbursement Requests</h3>
               </div>
               <div className="overflow-x-auto">
-                 <table className="w-full text-left">
+                 <table className="w-full text-left min-w-[700px]">
                     <thead className="bg-slate-50 text-slate-400 text-[10px] uppercase font-black tracking-widest">
                        <tr>
                           <th className="px-8 py-6 italic">Beneficiary</th>
@@ -400,7 +400,7 @@ const HRMS = () => {
                     <button onClick={() => setIsJobModalOpen(true)} className="text-[10px] font-black uppercase text-primary-500 hover:underline">New Job Posting</button>
                  </div>
                  <div className="overflow-x-auto">
-                    <table className="w-full text-left">
+                    <table className="w-full text-left min-w-[700px]">
                        <thead className="bg-slate-50 text-slate-400 text-[10px] uppercase font-black tracking-widest">
                           <tr>
                              <th className="px-8 py-6">Candidate</th>

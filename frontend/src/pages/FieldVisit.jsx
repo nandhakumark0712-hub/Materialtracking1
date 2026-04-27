@@ -139,14 +139,14 @@ const FieldVisit = () => {
     <div className="space-y-8 animate-in fade-in duration-700">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div>
-          <h1 className="text-4xl font-black text-slate-900 tracking-tight italic">Field Operations</h1>
-          <p className="text-slate-500 font-medium mt-1 uppercase text-[10px] tracking-widest">Client Engagement & Technical Verification</p>
+          <h1 className="text-2xl md:text-4xl font-black text-slate-900 tracking-tight italic">Field Operations</h1>
+          <p className="text-slate-500 font-medium mt-1 uppercase text-[8px] md:text-[10px] tracking-widest">Client Engagement & Technical Verification</p>
         </div>
         
-        <div className="flex bg-white p-2 rounded-[1.5rem] shadow-sm border border-slate-100 italic">
+        <div className="flex bg-white p-1 md:p-2 rounded-[1rem] md:rounded-[1.5rem] shadow-sm border border-slate-100 italic w-full lg:w-auto">
           <button 
             onClick={() => setView('form')}
-            className={`px-8 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center ${
+            className={`flex-1 lg:flex-none px-4 md:px-8 py-2 md:py-2.5 rounded-lg md:rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center ${
               view === 'form' ? 'bg-primary-500 text-white shadow-lg' : 'text-slate-500 hover:bg-slate-50'
             }`}
           >
@@ -154,7 +154,7 @@ const FieldVisit = () => {
           </button>
           <button 
             onClick={() => setView('history')}
-            className={`px-8 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center ${
+            className={`flex-1 lg:flex-none px-4 md:px-8 py-2 md:py-2.5 rounded-lg md:rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center ${
               view === 'history' ? 'bg-primary-500 text-white shadow-lg' : 'text-slate-500 hover:bg-slate-50'
             }`}
           >
@@ -178,7 +178,7 @@ const FieldVisit = () => {
       {view === 'form' ? (
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
           <div className="xl:col-span-2">
-            <form onSubmit={handleSubmit} className="bg-white p-12 rounded-[4rem] border border-slate-100 shadow-sm space-y-10">
+            <form onSubmit={handleSubmit} className="bg-white p-6 md:p-12 rounded-[2rem] md:rounded-[4rem] border border-slate-100 shadow-sm space-y-8 md:space-y-10">
               <div className="space-y-6">
                 <h2 className="text-2xl font-black italic uppercase tracking-tighter flex items-center">
                   <ClipboardCheck className="mr-4 text-primary-500" /> Visit Checklist
@@ -213,15 +213,15 @@ const FieldVisit = () => {
 
                 <div className="space-y-4 pt-4">
                   {questions.map((q) => (
-                    <div key={q.id} className="flex flex-col md:flex-row md:items-center justify-between p-6 bg-slate-50/50 rounded-[2rem] border border-transparent hover:border-slate-100 transition-all">
-                      <p className="text-sm font-bold text-slate-700 uppercase tracking-tight mb-4 md:mb-0">{q.label}</p>
-                      <div className="flex bg-white p-1.5 rounded-2xl shadow-sm border border-slate-100">
+                    <div key={q.id} className="flex flex-col lg:flex-row lg:items-center justify-between p-4 md:p-6 bg-slate-50/50 rounded-[1.5rem] md:rounded-[2rem] border border-transparent hover:border-slate-100 transition-all">
+                      <p className="text-[11px] md:text-sm font-bold text-slate-700 uppercase tracking-tight mb-4 lg:mb-0">{q.label}</p>
+                      <div className="flex bg-white p-1 rounded-xl md:rounded-2xl shadow-sm border border-slate-100 w-full lg:w-auto">
                         {['Yes', 'No'].map((option) => (
                           <button
                             key={option}
                             type="button"
                             onClick={() => handleResponseChange(q.id, option)}
-                            className={`px-8 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                            className={`flex-1 lg:flex-none px-6 md:px-8 py-2 rounded-lg md:rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all ${
                               formData.responses[q.id] === option 
                                 ? option === 'Yes' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'bg-rose-500 text-white shadow-lg shadow-rose-500/20'
                                 : 'text-slate-400 hover:bg-slate-50'
@@ -313,13 +313,13 @@ const FieldVisit = () => {
           ) : (
             <div className="grid grid-cols-1 gap-6">
               {visits.map((visit) => (
-                <div key={visit._id} className="bg-white p-8 rounded-[3.5rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all group overflow-hidden relative">
-                  <div className="absolute top-0 right-0 p-8">
-                     <p className="text-[9px] font-black text-slate-300 uppercase tracking-[0.2em]">{format(new Date(visit.createdAt), 'MMM d, yyyy • HH:mm')}</p>
+                <div key={visit._id} className="bg-white p-6 md:p-8 rounded-[2rem] md:rounded-[3.5rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all group overflow-hidden relative">
+                  <div className="absolute top-0 right-0 p-6 md:p-8">
+                     <p className="text-[8px] md:text-[9px] font-black text-slate-300 uppercase tracking-[0.2em]">{format(new Date(visit.createdAt), 'MMM d, yyyy')}</p>
                   </div>
-                  <div className="flex flex-col md:flex-row md:items-center justify-between">
-                    <div className="flex items-center space-x-6">
-                      <div className="w-20 h-20 rounded-3xl bg-slate-50 flex items-center justify-center text-primary-500 border border-white shadow-sm overflow-hidden">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div className="flex items-center space-x-4 md:space-x-6">
+                      <div className="w-14 h-14 md:w-20 md:h-20 rounded-2xl md:rounded-3xl bg-slate-50 flex items-center justify-center text-primary-500 border border-white shadow-sm overflow-hidden">
                          {visit.imageUrl ? (
                            <img src={`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${visit.imageUrl && !visit.imageUrl.startsWith('/') ? '/' : ''}${visit.imageUrl}`} alt="visit" className="w-full h-full object-cover" />
                          ) : (

@@ -61,18 +61,18 @@ const FieldReport = () => {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="bg-slate-900 p-12 rounded-[4rem] text-white flex justify-between items-center relative overflow-hidden">
+      <div className="bg-slate-900 p-8 md:p-12 rounded-[2rem] md:rounded-[4rem] text-white flex justify-between items-center relative overflow-hidden">
          <div className="absolute top-0 right-0 w-64 h-64 bg-primary-500/10 rounded-full -mr-32 -mt-32"></div>
          <div>
-            <h1 className="text-4xl font-black italic">Field Operations Report</h1>
-            <p className="text-white/50 font-bold uppercase text-[10px] tracking-widest mt-2 italic">Real-time On-Site Intelligence Gathering</p>
+            <h1 className="text-2xl md:text-4xl font-black italic">Field Operations Report</h1>
+            <p className="text-white/50 font-bold uppercase text-[8px] md:text-[10px] tracking-[0.1em] md:tracking-[0.2em] mt-2 italic">Real-time On-Site Intelligence Gathering</p>
          </div>
-         <HardHat size={56} className="text-primary-500 relative z-10" />
+         <HardHat size={40} md:size={56} className="text-primary-500 relative z-10 hidden sm:block" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
          <div className="lg:col-span-2">
-            <div className="bg-white p-10 rounded-[4rem] shadow-sm border border-slate-100">
+            <div className="bg-white p-6 md:p-10 rounded-[2rem] md:rounded-[4rem] shadow-sm border border-slate-100">
                <form onSubmit={handleSubmit} className="space-y-8">
                   {questions.map((q, i) => (
                      <div key={i} className="group">
@@ -103,20 +103,20 @@ const FieldReport = () => {
                            onChange={handleImageChange}
                            className="absolute inset-0 w-full h-full opacity-0 z-10 cursor-pointer" 
                         />
-                        <div className="border-4 border-dashed border-slate-100 rounded-[3rem] p-12 text-center group-hover:border-primary-500/30 group-hover:bg-slate-50 transition-all">
+                        <div className="border-4 border-dashed border-slate-100 rounded-[2rem] md:rounded-[3rem] p-8 md:p-12 text-center group-hover:border-primary-500/30 group-hover:bg-slate-50 transition-all">
                            {formData.image ? (
                               <div className="flex flex-col items-center">
                                  <CheckCircle2 className="text-emerald-500 mb-2" size={32} />
-                                 <p className="text-sm font-bold text-slate-900 uppercase">{formData.image.name}</p>
+                                 <p className="text-xs md:text-sm font-bold text-slate-900 uppercase truncate max-w-full px-4">{formData.image.name}</p>
                                  <p className="text-[10px] text-slate-400 font-bold uppercase mt-1 italic">Click to replace file</p>
                               </div>
                            ) : (
                               <div className="flex flex-col items-center">
-                                 <div className="w-16 h-16 bg-slate-50 text-slate-300 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                                    <Camera size={32} />
+                                 <div className="w-12 h-12 md:w-16 md:h-16 bg-slate-50 text-slate-300 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                    <Camera size={24} md:size={32} />
                                  </div>
-                                 <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">Snap or Upload Field Image</p>
-                                 <p className="text-[10px] text-slate-300 font-bold uppercase mt-2 italic shadow-current">JPEG, PNG Max 10MB</p>
+                                 <p className="text-[11px] md:text-sm font-bold text-slate-400 uppercase tracking-widest">Snap or Upload Field Image</p>
+                                 <p className="text-[9px] md:text-[10px] text-slate-300 font-bold uppercase mt-2 italic shadow-current">JPEG, PNG Max 10MB</p>
                               </div>
                            )}
                         </div>

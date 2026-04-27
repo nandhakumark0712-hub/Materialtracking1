@@ -192,26 +192,26 @@ const Profile = () => {
   return (
     <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500 pb-20">
       {/* Profile Header */}
-      <div className="bg-slate-900 rounded-[3.5rem] p-10 text-white relative overflow-hidden shadow-2xl">
+      <div className="bg-slate-900 rounded-[2.5rem] md:rounded-[3.5rem] p-6 md:p-10 text-white relative overflow-hidden shadow-2xl">
         <div className="absolute top-0 right-0 w-96 h-96 bg-primary-500/10 rounded-full blur-[100px]"></div>
         <div className="flex flex-col md:flex-row items-center md:items-end space-y-6 md:space-y-0 md:space-x-10 relative z-10">
           <div className="relative group">
-            <div className="w-40 h-40 rounded-[3rem] bg-white border-4 border-primary-500 overflow-hidden shadow-2xl transition-transform group-hover:scale-105 duration-500">
+            <div className="w-32 h-32 md:w-40 md:h-40 rounded-[2rem] md:rounded-[3rem] bg-white border-4 border-primary-500 overflow-hidden shadow-2xl transition-transform group-hover:scale-105 duration-500">
               <img 
                 src={imagePreview || (profileData?.profileImg ? `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/uploads/field-visits/${profileData.profileImg}` : `https://ui-avatars.com/api/?name=${user?.name}&background=0ea5e9&color=fff&size=256`)} 
                 alt="Profile" 
                 className="w-full h-full object-cover"
               />
             </div>
-            <label className="absolute bottom-2 right-2 w-12 h-12 bg-primary-500 rounded-2xl flex items-center justify-center cursor-pointer hover:bg-primary-600 transition-all shadow-xl">
-               <Camera size={20} />
+            <label className="absolute bottom-1 right-1 md:bottom-2 md:right-2 w-10 h-10 md:w-12 md:h-12 bg-primary-500 rounded-xl md:rounded-2xl flex items-center justify-center cursor-pointer hover:bg-primary-600 transition-all shadow-xl">
+               <Camera size={18} md:size={20} />
                <input type="file" className="hidden" onChange={handleImageChange} accept="image/*" />
             </label>
             {imageFile && (
               <button 
                 onClick={handleImageUpload}
                 disabled={isSubmitting}
-                className="absolute -bottom-14 left-1/2 -translate-x-1/2 px-6 py-2 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-lg"
+                className="absolute -bottom-12 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-emerald-500 text-white text-[8px] md:text-[10px] font-black uppercase tracking-widest rounded-full shadow-lg whitespace-nowrap"
               >
                 {isSubmitting ? 'Uploading...' : 'Save Photo'}
               </button>
@@ -219,41 +219,43 @@ const Profile = () => {
           </div>
           
           <div className="text-center md:text-left flex-1">
-            <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 mb-4">
-              <span className="px-4 py-1.5 bg-primary-500/20 text-primary-400 text-[10px] font-black uppercase tracking-widest rounded-full border border-primary-500/30">
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 md:gap-4 mb-4">
+              <span className="px-3 md:px-4 py-1 md:py-1.5 bg-primary-500/20 text-primary-400 text-[8px] md:text-[10px] font-black uppercase tracking-widest rounded-full border border-primary-500/30">
                 {profileData?.role}
               </span>
-              <span className="px-4 py-1.5 bg-white/5 text-white/50 text-[10px] font-black uppercase tracking-widest rounded-full border border-white/10 italic">
+              <span className="px-3 md:px-4 py-1 md:py-1.5 bg-white/5 text-white/50 text-[8px] md:text-[10px] font-black uppercase tracking-widest rounded-full border border-white/10 italic">
                 ID: {profileData?.employeeID || profileData?._id?.slice(-8).toUpperCase()}
               </span>
             </div>
-            <h1 className="text-5xl font-black italic tracking-tighter uppercase leading-none mb-4">{profileData?.name}</h1>
-            <p className="text-white/40 font-bold uppercase text-xs tracking-[0.3em] italic flex items-center justify-center md:justify-start">
-               <Briefcase size={16} className="mr-3 text-primary-500" /> {profileData?.designation || 'Specialist'} / {profileData?.department || 'Operations'}
+            <h1 className="text-3xl md:text-5xl font-black italic tracking-tighter uppercase leading-none mb-4">{profileData?.name}</h1>
+            <p className="text-white/40 font-bold uppercase text-[10px] md:text-xs tracking-[0.2em] md:tracking-[0.3em] italic flex items-center justify-center md:justify-start">
+               <Briefcase size={14} md:size={16} className="mr-2 md:mr-3 text-primary-500" /> {profileData?.designation || 'Specialist'} / {profileData?.department || 'Operations'}
             </p>
           </div>
           
-          <div className="bg-white/5 p-6 rounded-[2.5rem] border border-white/10 text-center backdrop-blur-xl">
-             <p className="text-[10px] font-black text-white/30 uppercase tracking-widest mb-1">Performance</p>
-             <h3 className="text-2xl font-black text-primary-500 italic">{profileData?.totalPoints || 0} PTS</h3>
-             <p className="text-[9px] font-bold text-white/20 mt-2 uppercase italic">{profileData?.badges?.length || 0} Badges Earned</p>
+          <div className="bg-white/5 p-4 md:p-6 rounded-[1.5rem] md:rounded-[2.5rem] border border-white/10 text-center backdrop-blur-xl w-full md:w-auto">
+             <p className="text-[8px] md:text-[10px] font-black text-white/30 uppercase tracking-widest mb-1">Performance</p>
+             <h3 className="text-xl md:text-2xl font-black text-primary-500 italic">{profileData?.totalPoints || 0} PTS</h3>
+             <p className="text-[8px] md:text-[9px] font-bold text-white/20 mt-1 md:mt-2 uppercase italic">{profileData?.badges?.length || 0} Badges Earned</p>
           </div>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex space-x-2 bg-white p-2 rounded-[2rem] w-max shadow-sm border border-slate-100 italic">
-         {tabs.map(tab => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-10 py-4 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all ${
-                activeTab === tab ? 'bg-primary-500 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-50'
-              }`}
-            >
-              {tab}
-            </button>
-         ))}
+      <div className="flex bg-white p-1 md:p-2 rounded-[1.2rem] md:rounded-[2rem] shadow-sm border border-slate-100 italic overflow-x-auto no-scrollbar">
+         <div className="flex space-x-1 md:space-x-2">
+            {tabs.map(tab => (
+               <button
+                 key={tab}
+                 onClick={() => setActiveTab(tab)}
+                 className={`px-6 md:px-10 py-2.5 md:py-4 rounded-lg md:rounded-[1.5rem] text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
+                   activeTab === tab ? 'bg-primary-500 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-50'
+                 }`}
+               >
+                 {tab}
+               </button>
+            ))}
+         </div>
       </div>
 
       {/* Content Area */}
@@ -275,15 +277,14 @@ const Profile = () => {
               </div>
 
               {/* Work Details & Role Specific */}
-              <div className="bg-white p-10 rounded-[3.5rem] border border-slate-100 shadow-sm">
-                <h3 className="text-xl font-black italic mb-10 flex items-center uppercase tracking-tight">
+              <div className="bg-white p-6 md:p-10 rounded-[2rem] md:rounded-[3.5rem] border border-slate-100 shadow-sm">
+                <h3 className="text-lg md:text-xl font-black italic mb-6 md:mb-10 flex items-center uppercase tracking-tight">
                   <Shield className="mr-4 text-primary-500" /> Operational Context
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
                    <InfoItem icon={Building} label="Sector/Dept" value={profileData?.department || 'Operations'} />
                    <InfoItem icon={Users} label="Reporting To" value={profileData?.reportingManager?.name || 'System Admin'} />
                    
-                   {/* Role specific content */}
                    {profileData?.role === 'Manager' && (
                       <InfoItem icon={Users} label="Personnel Under Command" value="12 Active Staff" />
                    )}
@@ -292,11 +293,11 @@ const Profile = () => {
                    )}
                 </div>
                 
-                <div className="mt-12 pt-10 border-t border-slate-50">
-                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 italic">Personnel Skills & Proficiencies</p>
-                   <div className="flex flex-wrap gap-3">
+                <div className="mt-8 md:mt-12 pt-8 md:pt-10 border-t border-slate-50">
+                   <p className="text-[8px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 italic">Personnel Skills & Proficiencies</p>
+                   <div className="flex flex-wrap gap-2 md:gap-3">
                       {profileData?.skills?.map((skill, i) => (
-                         <span key={i} className="px-6 py-2 bg-slate-50 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest border border-slate-100">
+                         <span key={i} className="px-4 md:px-6 py-1.5 md:py-2 bg-slate-50 text-slate-600 rounded-lg md:rounded-xl text-[8px] md:text-[10px] font-black uppercase tracking-widest border border-slate-100">
                             {skill}
                          </span>
                       )) || <p className="text-xs text-slate-300 italic">No skills cataloged.</p>}
@@ -462,13 +463,13 @@ const Profile = () => {
 };
 
 const InfoItem = ({ icon: Icon, label, value }) => (
-  <div className="flex items-center space-x-6 p-6 bg-slate-50 rounded-[2.5rem] border border-white hover:border-slate-100 transition-all">
-    <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-primary-500 shadow-sm border border-slate-50">
-      <Icon size={20} />
+  <div className="flex items-center space-x-4 md:space-x-6 p-4 md:p-6 bg-slate-50 rounded-[1.5rem] md:rounded-[2.5rem] border border-white hover:border-slate-100 transition-all">
+    <div className="w-10 h-10 md:w-12 md:h-12 bg-white rounded-xl md:rounded-2xl flex items-center justify-center text-primary-500 shadow-sm border border-slate-50 shrink-0">
+      <Icon size={18} md:size={20} />
     </div>
-    <div>
-      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic">{label}</p>
-      <p className="text-sm font-black text-slate-900 tracking-tight mt-0.5">{value || 'N/A'}</p>
+    <div className="min-w-0">
+      <p className="text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-widest italic truncate">{label}</p>
+      <p className="text-xs md:text-sm font-black text-slate-900 tracking-tight mt-0.5 truncate">{value || 'N/A'}</p>
     </div>
   </div>
 );

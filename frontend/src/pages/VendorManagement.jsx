@@ -86,37 +86,37 @@ const VendorManagement = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
            <div className="flex items-center space-x-3 mb-2">
-              <Truck className="text-primary-500" size={24} />
-              <span className="text-primary-500 font-black uppercase text-[10px] tracking-[0.3em]">Supply Chain Matrix</span>
+              <Truck className="text-primary-500" size={20} md:size={24} />
+              <span className="text-primary-500 font-black uppercase text-[8px] md:text-[10px] tracking-[0.2em] md:tracking-[0.3em]">Supply Chain Matrix</span>
            </div>
-           <h1 className="text-4xl font-black text-slate-900 italic tracking-tight">Vendor Management</h1>
-           <p className="text-slate-500 font-medium mt-1">Orchestrate enterprise supplier relationships and procurement velocity.</p>
+           <h1 className="text-2xl md:text-4xl font-black text-slate-900 italic tracking-tight">Vendor Management</h1>
+           <p className="text-slate-500 font-medium mt-1 text-xs md:text-sm">Orchestrate enterprise supplier relationships and procurement velocity.</p>
         </div>
         <button 
           onClick={() => { setSelectedVendor(null); setFormData({ name: '', contactPerson: '', email: '', phone: '', address: '', gstId: '', category: 'Material', paymentTerms: 'Net 30', status: 'Active' }); setIsModalOpen(true); }}
-          className="btn-primary px-8 flex items-center space-x-3"
+          className="w-full md:w-auto btn-primary px-8 py-3 md:py-4 flex items-center justify-center space-x-3 text-xs md:text-base"
         >
           <Plus size={20} />
           <span>Onboard Vendor</span>
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         {[
            { label: 'Active Partners', val: vendors.filter(v => v.status === 'Active').length, icon: ShieldCheck, color: 'text-emerald-500', bg: 'bg-emerald-50' },
            { label: 'Total Registry', val: vendors.length, icon: Truck, color: 'text-primary-500', bg: 'bg-primary-50' },
            { label: 'Avg Rating', val: '4.8/5', icon: Star, color: 'text-amber-500', bg: 'bg-amber-50' },
            { label: 'Spending Mix', val: '12 Cats', icon: TrendingUp, color: 'text-indigo-500', bg: 'bg-indigo-50' },
         ].map((s, i) => (
-           <div key={i} className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 hover:shadow-xl transition-all group">
-              <div className="flex justify-between items-start mb-6">
-                 <div className={`w-14 h-14 ${s.bg} ${s.color} rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform`}>
-                    <s.icon size={26} />
+           <div key={i} className="bg-white p-4 md:p-8 rounded-[1.5rem] md:rounded-[2.5rem] shadow-sm border border-slate-100 hover:shadow-xl transition-all group">
+              <div className="flex justify-between items-start mb-4 md:mb-6">
+                 <div className={`w-10 h-10 md:w-14 md:h-14 ${s.bg} ${s.color} rounded-xl md:rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                    <s.icon size={20} md:size={26} />
                  </div>
-                 <div className="w-10 h-1 bg-slate-50 rounded-full"></div>
+                 <div className="w-8 h-1 bg-slate-50 rounded-full hidden sm:block"></div>
               </div>
-              <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest italic">{s.label}</p>
-              <h3 className="text-3xl font-black text-slate-900 mt-1">{s.val}</h3>
+              <p className="text-slate-400 text-[8px] md:text-[10px] font-black uppercase tracking-widest italic">{s.label}</p>
+              <h3 className="text-xl md:text-3xl font-black text-slate-900 mt-1">{s.val}</h3>
            </div>
         ))}
       </div>
@@ -138,7 +138,7 @@ const VendorManagement = () => {
          </div>
          
          <div className="overflow-x-auto">
-            <table className="w-full text-left">
+            <table className="w-full text-left min-w-[800px]">
                <thead className="bg-slate-50 text-slate-400 text-[10px] uppercase font-black tracking-widest">
                   <tr>
                      <th className="px-8 py-6">Identity</th>

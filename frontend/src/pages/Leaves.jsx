@@ -76,13 +76,13 @@ const Leaves = () => {
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row items-center justify-between gap-6">
         <div>
-          <h1 className="text-4xl font-black text-slate-900 tracking-tight italic">Leave Management</h1>
-          <p className="text-slate-500 font-medium mt-1">Schedule vacations, sick leaves, and manage time-off requests.</p>
+          <h1 className="text-2xl md:text-4xl font-black text-slate-900 tracking-tight italic">Leave Management</h1>
+          <p className="text-slate-500 font-medium mt-1 text-xs md:text-sm">Schedule vacations, sick leaves, and manage time-off requests.</p>
         </div>
         {!isHR && (
           <button 
             onClick={() => setIsModalOpen(true)}
-            className="btn-primary flex items-center space-x-3 px-8 py-4 shadow-xl shadow-primary-500/20"
+            className="w-full md:w-auto btn-primary flex items-center justify-center space-x-3 px-6 md:px-8 py-3 md:py-4 shadow-xl shadow-primary-500/20 text-xs md:text-base"
           >
             <Plus size={22} />
             <span>Apply for Time-Off</span>
@@ -90,17 +90,17 @@ const Leaves = () => {
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
          {[
            { label: 'Annual Entitlement', count: 24, color: 'primary', sub: 'Yearly Pool' },
            { label: 'Pending Requests', count: leaves.filter(l => l.status === 'Pending').length, color: 'amber', sub: 'In Authorization' },
            { label: 'Authorized Leaves', count: leaves.filter(l => l.status === 'Approved').length, color: 'emerald', sub: 'Confirmed Schedule' },
          ].map((s, i) => (
-           <div key={i} className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 group hover:shadow-xl transition-all relative overflow-hidden">
-              <div className={`absolute -right-4 -bottom-4 w-24 h-24 bg-${s.color}-500/5 rounded-full group-hover:scale-150 transition-transform duration-700`}></div>
-              <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-1 italic">{s.sub}</p>
-              <h3 className="text-4xl font-black text-slate-900 mb-2">{s.count}</h3>
-              <p className="text-slate-400 text-xs font-bold uppercase">{s.label}</p>
+           <div key={i} className="bg-white p-6 md:p-8 rounded-[1.5rem] md:rounded-[2.5rem] shadow-sm border border-slate-100 group hover:shadow-xl transition-all relative overflow-hidden">
+              <div className={`absolute -right-4 -bottom-4 w-16 h-16 md:w-24 md:h-24 bg-${s.color}-500/5 rounded-full group-hover:scale-150 transition-transform duration-700`}></div>
+              <p className="text-slate-500 text-[8px] md:text-[10px] font-black uppercase tracking-widest mb-1 italic">{s.sub}</p>
+              <h3 className="text-2xl md:text-4xl font-black text-slate-900 mb-2">{s.count}</h3>
+              <p className="text-slate-400 text-[10px] md:text-xs font-bold uppercase">{s.label}</p>
            </div>
          ))}
       </div>
@@ -114,7 +114,7 @@ const Leaves = () => {
             </div>
          </div>
          <div className="overflow-x-auto">
-            <table className="w-full text-left">
+            <table className="w-full text-left min-w-[700px]">
                <thead className="bg-slate-50 text-slate-400 text-[10px] uppercase font-black tracking-widest">
                   <tr>
                      <th className="px-8 py-6 italic">{isHR ? 'Applicant' : 'Category'}</th>
