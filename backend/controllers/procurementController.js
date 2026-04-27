@@ -60,24 +60,64 @@ exports.handlePurchaseApproval = async (req, res, next) => {
 
         if (!request) return res.status(404).json({ message: 'Request not found' });
 
+        const oldStatus = request.status;
         request.status = status;
         request.adminComments = adminComments;
-        if (status === 'Approved') request.approvedAt = Date.now();
+        if (status === 'Approved' && oldStatus !== 'Approved') request.approvedAt = Date.now();
         await request.save();
 
-        // If Approved, Create actual Purchase Order
-        if (status === 'Approved') {
+        // If Approved AND it's a new approval, Create actual Purchase Order and Update Inventory
+        if (status === 'Approved' && oldStatus !== 'Approved') {
+            let targetMaterialId = request.material;
+
+            // 1. Check if Material exists or needs to be created
+            if (!targetMaterialId) {
+                // Try to find material by name (case-insensitive)
+                let existingMaterial = await Material.findOne({ 
+                    name: { $regex: new RegExp(`^${request.itemName}$`, 'i') } 
+                });
+
+                if (existingMaterial) {
+                    targetMaterialId = existingMaterial._id;
+                    request.material = targetMaterialId;
+                } else {
+                    // Create new material record
+                    const newMaterial = await Material.create({
+                        name: request.itemName,
+                        sku: `SKU-${Date.now().toString().slice(-6)}`,
+                        category: 'Procured',
+                        quantity: 0, // Will be updated below
+                        unit: 'pcs',
+                        status: 'Approved',
+                        createdBy: req.user.id
+                    });
+                    targetMaterialId = newMaterial._id;
+                    request.material = targetMaterialId;
+                }
+                await request.save();
+            }
+
+            // 2. Create Purchase Order
             await Order.create({
                 orderID: `PO-${Date.now().toString().slice(-6)}`,
                 vendor: request.vendor,
                 totalAmount: request.amount,
                 status: 'Approved',
                 items: [{ 
-                    material: request.material, 
+                    material: targetMaterialId, 
                     quantity: request.quantity, 
                     price: request.amount / request.quantity 
                 }]
             });
+
+            // 3. Update Material Inventory (Additive Logic)
+            if (targetMaterialId) {
+                const material = await Material.findById(targetMaterialId);
+                if (material) {
+                    material.quantity = (material.quantity || 0) + request.quantity;
+                    await material.save();
+                }
+            }
         }
 
         // Notify Manager
