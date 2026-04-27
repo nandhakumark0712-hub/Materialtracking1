@@ -93,25 +93,25 @@ const Tasks = () => {
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div>
-          <h1 className="text-4xl font-black text-slate-900 tracking-tight italic">Mission Controls</h1>
-          <p className="text-slate-500 font-medium mt-1">Direct assignments, track operational milestones, and manage workflows.</p>
+          <h1 className="text-2xl md:text-4xl font-black text-slate-900 tracking-tight italic">Mission Controls</h1>
+          <p className="text-slate-500 font-medium mt-1 text-xs md:text-sm">Direct assignments, track operational milestones, and manage workflows.</p>
         </div>
-        <div className="flex items-center space-x-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full lg:w-auto">
            {isManagement && (
              <button 
                 onClick={() => setIsModalOpen(true)}
-                className="btn-primary flex items-center space-x-2 px-6 py-4 shadow-xl shadow-primary-500/20"
+                className="w-full sm:w-auto btn-primary flex items-center justify-center space-x-2 px-6 py-3 md:py-4 shadow-xl shadow-primary-500/20 text-xs md:text-base"
              >
                 <Plus size={20} />
-                <span>Assign New Mission</span>
+                <span>Assign Mission</span>
              </button>
            )}
-           <div className="flex bg-white p-2 rounded-[1.5rem] shadow-sm border border-slate-100 italic">
+           <div className="flex bg-white p-1 md:p-2 rounded-[1rem] md:rounded-[1.5rem] shadow-sm border border-slate-100 italic overflow-x-auto scrollbar-hide w-full sm:w-auto">
               {['All', 'Pending', 'In Progress', 'Completed'].map(f => (
                 <button 
                    key={f}
                    onClick={() => setFilter(f)}
-                   className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                   className={`flex-1 sm:flex-none px-4 md:px-6 py-2 md:py-2.5 rounded-lg md:rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
                      filter === f ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/20' : 'text-slate-500 hover:bg-slate-50'
                    }`}
                 >
@@ -124,9 +124,9 @@ const Tasks = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {filteredTasks.map((task) => (
-          <div key={task._id} className="bg-white rounded-[3rem] p-8 shadow-sm border border-slate-100 flex flex-col hover:shadow-xl transition-all duration-300 group relative overflow-hidden">
-             <div className="absolute top-0 right-0 w-24 h-24 bg-slate-50 rounded-bl-[4rem] flex items-center justify-center group-hover:bg-primary-50 transition-colors">
-                <button className="text-slate-300 hover:text-primary-500"><MoreVertical size={18} /></button>
+          <div key={task._id} className="bg-white rounded-[2rem] md:rounded-[3rem] p-6 md:p-8 shadow-sm border border-slate-100 flex flex-col hover:shadow-xl transition-all duration-300 group relative overflow-hidden">
+             <div className="absolute top-0 right-0 w-20 h-20 md:w-24 md:h-24 bg-slate-50 rounded-bl-[3rem] md:rounded-bl-[4rem] flex items-center justify-center group-hover:bg-primary-50 transition-colors">
+                <button className="text-slate-300 hover:text-primary-500"><MoreVertical size={16} md:size={18} /></button>
              </div>
 
              <div className="flex mb-6">

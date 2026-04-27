@@ -138,11 +138,11 @@ const Attendance = () => {
               onClick={exportAttendance}
               className="text-sm font-bold text-primary-600 hover:underline"
             >
-              View Full Report
+              Export Report
             </button>
           </div>
-          <div className="flex-1 overflow-y-auto">
-            <table className="w-full text-left">
+          <div className="flex-1 overflow-x-auto">
+            <table className="w-full text-left min-w-[500px]">
               <thead className="bg-slate-50 text-slate-400 text-[10px] uppercase font-bold tracking-widest">
                 <tr>
                   <th className="px-6 py-4">Date</th>

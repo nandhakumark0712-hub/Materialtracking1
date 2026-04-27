@@ -39,20 +39,20 @@ const Login = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#f2f5f7] px-4 overflow-hidden relative">
       {/* Goibibo-style background accent */}
-      <div className="absolute top-0 left-0 w-full h-[300px] bg-primary-500 rounded-b-[4rem]"></div>
+      <div className="absolute top-0 left-0 w-full h-[200px] md:h-[300px] bg-primary-500 rounded-b-[2rem] md:rounded-b-[4rem]"></div>
       
       <div className="max-w-md w-full z-10">
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-24 h-24 bg-white rounded-3xl mb-4 shadow-2xl shadow-primary-500/40 overflow-hidden">
+        <div className="text-center mb-6 md:mb-10">
+          <div className="inline-flex items-center justify-center w-20 h-20 md:w-24 md:h-24 bg-white rounded-2xl md:rounded-3xl mb-4 shadow-2xl shadow-primary-500/40 overflow-hidden">
             <img src="/logo.png" alt="Smart Track Logo" className="w-full h-full object-contain p-2" />
           </div>
-          <h2 className="text-4xl font-black text-white tracking-tight italic">Smart Track</h2>
-          <p className="text-white/80 font-medium mt-1">Intelligent Material Management System</p>
+          <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight italic">Smart Track</h2>
+          <p className="text-white/80 font-medium mt-1 text-sm md:text-base">Intelligent Material Management System</p>
         </div>
 
-        <div className="bg-white p-10 rounded-[3rem] shadow-2xl shadow-slate-200 border border-white">
-          <h3 className="text-2xl font-bold text-slate-800 mb-2">Login to Continue</h3>
-          <p className="text-slate-400 text-sm mb-8">Please enter your credentials</p>
+        <div className="bg-white p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] shadow-2xl shadow-slate-200 border border-white">
+          <h3 className="text-xl md:text-2xl font-bold text-slate-800 mb-2">Login to Continue</h3>
+          <p className="text-slate-400 text-xs md:text-sm mb-6 md:mb-8">Please enter your credentials</p>
 
           {isError && (
             <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center space-x-3 text-red-600">

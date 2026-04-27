@@ -112,19 +112,19 @@ const ERP = () => {
       <div className="flex flex-col md:flex-row items-center justify-between gap-6">
         <div>
            <div className="flex items-center space-x-3 mb-2">
-              <ShoppingCart className="text-primary-500" size={20} />
-              <span className="text-primary-500 font-black uppercase text-[10px] tracking-[0.3em]">Procurement Protocol</span>
+              <ShoppingCart className="text-primary-500" size={16} md:size={20} />
+              <span className="text-primary-500 font-black uppercase text-[8px] md:text-[10px] tracking-[0.2em] md:tracking-[0.3em]">Procurement Protocol</span>
            </div>
-           <h1 className="text-4xl font-black text-slate-900 tracking-tight italic">Procurement Hub</h1>
-           <p className="text-slate-500 font-medium">Manage enterprise vendors and purchase authorizations.</p>
+           <h1 className="text-2xl md:text-4xl font-black text-slate-900 tracking-tight italic">Procurement Hub</h1>
+           <p className="text-slate-500 font-medium text-xs md:text-sm">Manage enterprise vendors and purchase authorizations.</p>
         </div>
-        <div className="flex gap-4">
-           <div className="flex bg-white p-1 rounded-2xl border border-slate-100 shadow-sm italic">
+        <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
+           <div className="flex bg-white p-1 rounded-xl md:rounded-2xl border border-slate-100 shadow-sm italic w-full sm:w-auto">
               {['Orders', 'Requests'].map(tab => (
                  <button 
                    key={tab}
                    onClick={() => setActiveTab(tab)}
-                   className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                   className={`flex-1 sm:flex-none px-4 md:px-6 py-2 md:py-2.5 rounded-lg md:rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all ${
                      activeTab === tab ? 'bg-slate-900 text-white' : 'text-slate-400 hover:text-slate-900'
                    }`}
                  >
@@ -134,30 +134,30 @@ const ERP = () => {
            </div>
            <button 
              onClick={() => setIsModalOpen(true)}
-             className="btn-primary px-8"
+             className="btn-primary px-6 md:px-8 py-3 md:py-4 flex items-center justify-center text-xs md:text-base w-full sm:w-auto"
            >
-             <Plus size={20} className="mr-2" />
+             <Plus size={18} md:size={20} className="mr-2" />
              <span>New Request</span>
            </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         {[
            { label: 'Pending Requests', val: requests.filter(r => r.status === 'Pending').length, icon: Clock, sub: 'Approval Queue', color: 'text-amber-500' },
            { label: 'Active Vendors', val: vendors.length, icon: Truck, sub: 'Global Registry', color: 'text-blue-500' },
            { label: 'Monthly Spending', val: `₹${((stats?.monthlySpending || 0)/1000).toFixed(1)}K`, icon: DollarSign, sub: 'Authorized Flow', color: 'text-emerald-500' },
            { label: 'Utilization', val: `${stats?.budgetUtilized || 0}%`, icon: TrendingUp, sub: 'Safety Margin', color: 'text-indigo-500' },
         ].map((s, i) => (
-           <div key={i} className={`p-8 rounded-[2.5rem] shadow-sm border border-slate-100 bg-white hover:shadow-xl transition-all group`}>
-              <div className="flex justify-between items-start mb-6">
-                 <div className={`w-14 h-14 bg-slate-50 ${s.color} rounded-3xl flex items-center justify-center transition-transform group-hover:scale-110`}>
-                    <s.icon size={28} />
+           <div key={i} className={`p-4 md:p-8 rounded-[1.5rem] md:rounded-[2.5rem] shadow-sm border border-slate-100 bg-white hover:shadow-xl transition-all group`}>
+              <div className="flex justify-between items-start mb-4 md:mb-6">
+                 <div className={`w-10 h-10 md:w-14 md:h-14 bg-slate-50 ${s.color} rounded-2xl md:rounded-3xl flex items-center justify-center transition-transform group-hover:scale-110`}>
+                    <s.icon size={20} md:size={28} />
                  </div>
-                 <span className="text-[9px] font-black uppercase text-slate-300 tracking-widest italic">{s.sub}</span>
+                 <span className="text-[8px] md:text-[9px] font-black uppercase text-slate-300 tracking-widest italic hidden sm:block">{s.sub}</span>
               </div>
-              <p className="text-slate-500 text-[10px] font-black uppercase tracking-wider">{s.label}</p>
-              <h3 className="text-4xl font-black text-slate-900 mt-1">{s.val}</h3>
+              <p className="text-slate-500 text-[8px] md:text-[10px] font-black uppercase tracking-wider">{s.label}</p>
+              <h3 className="text-xl md:text-4xl font-black text-slate-900 mt-1">{s.val}</h3>
            </div>
         ))}
       </div>
@@ -169,7 +169,7 @@ const ERP = () => {
             <span className="text-[10px] font-black uppercase tracking-widest text-emerald-500 bg-emerald-50 px-4 py-1.5 rounded-full">Active Procurements</span>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full text-left">
+            <table className="w-full text-left min-w-[900px]">
               <thead className="bg-slate-50 text-slate-400 text-[10px] uppercase font-black tracking-widest">
                 <tr>
                   <th className="px-8 py-6">Purchase ID</th>

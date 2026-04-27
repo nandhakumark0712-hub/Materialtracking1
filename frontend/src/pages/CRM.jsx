@@ -155,18 +155,18 @@ const CRM = () => {
       <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6">
         <div>
            <div className="flex items-center space-x-3 mb-2">
-              <Zap className="text-primary-500 fill-primary-500" size={20} />
-              <span className="text-primary-500 font-black uppercase text-[10px] tracking-[0.3em]">Sales Engine Pro</span>
+              <Zap className="text-primary-500 fill-primary-500" size={16} md:size={20} />
+              <span className="text-primary-500 font-black uppercase text-[8px] md:text-[10px] tracking-[0.2em] md:tracking-[0.3em]">Sales Engine Pro</span>
            </div>
-           <h1 className="text-4xl font-black text-slate-900 italic tracking-tight">CRM Command Center</h1>
-           <p className="text-slate-500 font-medium mt-1">Intelligence-driven acquisition and pipeline optimization.</p>
+           <h1 className="text-2xl md:text-4xl font-black text-slate-900 italic tracking-tight">CRM Command Center</h1>
+           <p className="text-slate-500 font-medium mt-1 text-xs md:text-sm">Intelligence-driven acquisition and pipeline optimization.</p>
         </div>
-        <div className="flex bg-white p-2 rounded-[1.5rem] shadow-sm border border-slate-100 italic overflow-x-auto scrollbar-hide">
+        <div className="flex bg-white p-1 md:p-2 rounded-[1rem] md:rounded-[1.5rem] shadow-sm border border-slate-100 italic overflow-x-auto scrollbar-hide w-full xl:w-auto">
            {['Overview', 'Leads', 'Pipeline', 'Follow-ups', 'Performance'].map(tab => (
               <button 
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
+                className={`flex-1 xl:flex-none px-4 md:px-8 py-2 md:py-3 rounded-lg md:rounded-2xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
                   activeTab === tab ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/20' : 'text-slate-500 hover:bg-slate-50'
                 }`}
               >
@@ -183,22 +183,22 @@ const CRM = () => {
         </div>
       ) : activeTab === 'Overview' && stats ? (
         <div className="space-y-8">
-           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
               {[
                 { label: 'Total Leads', val: stats.totalLeads, icon: Target, color: 'text-blue-500', bg: 'bg-blue-50' },
                 { label: 'Active Deals', val: stats.activeDeals, icon: Briefcase, color: 'text-amber-500', bg: 'bg-amber-50' },
                 { label: 'Revenue Expected', val: `₹${((stats.revenueExpected || 0)/1000).toFixed(1)}K`, icon: DollarSign, color: 'text-emerald-500', bg: 'bg-emerald-50' },
                 { label: 'Follow-ups', val: stats.followUpsToday, icon: Clock, color: 'text-indigo-500', bg: 'bg-indigo-50' },
               ].map((s, i) => (
-                <div key={i} className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 group hover:shadow-xl transition-all">
-                   <div className="flex justify-between items-start mb-6">
-                      <div className={`w-14 h-14 ${s.bg} ${s.color} rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110`}>
-                         <s.icon size={26} />
+                <div key={i} className="bg-white p-4 md:p-8 rounded-[1.5rem] md:rounded-[2.5rem] shadow-sm border border-slate-100 group hover:shadow-xl transition-all">
+                   <div className="flex justify-between items-start mb-4 md:mb-6">
+                      <div className={`w-10 h-10 md:w-14 md:h-14 ${s.bg} ${s.color} rounded-xl md:rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110`}>
+                         <s.icon size={20} md:size={26} />
                       </div>
-                      <TrendingUp size={20} className="text-slate-100" />
+                      <TrendingUp size={16} md:size={20} className="text-slate-100" />
                    </div>
-                   <p className="text-slate-400 text-[9px] font-black uppercase tracking-widest italic">{s.label}</p>
-                   <h3 className="text-3xl font-black text-slate-900 mt-1">
+                   <p className="text-slate-400 text-[8px] md:text-[9px] font-black uppercase tracking-widest italic">{s.label}</p>
+                   <h3 className="text-xl md:text-3xl font-black text-slate-900 mt-1">
                       {typeof s.val === 'number' && s.val < 10 ? `0${s.val}` : s.val}
                    </h3>
                 </div>

@@ -143,28 +143,28 @@ const Materials = () => {
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div>
-          <h1 className="text-4xl font-black text-slate-900 tracking-tight italic">Asset Registry</h1>
-          <p className="text-slate-500 font-medium mt-1">Manage physical resources and procurement requests.</p>
+          <h1 className="text-2xl md:text-4xl font-black text-slate-900 tracking-tight italic">Asset Registry</h1>
+          <p className="text-slate-500 font-medium mt-1 text-xs md:text-sm">Manage physical resources and procurement requests.</p>
         </div>
         
-        <div className="flex flex-wrap gap-4">
+        <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
            {isManagement ? (
-             <button onClick={() => setIsAddModalOpen(true)} className="btn-primary flex items-center space-x-3 px-8 py-4 shadow-xl shadow-primary-500/20">
-                <Plus size={22} />
+             <button onClick={() => setIsAddModalOpen(true)} className="btn-primary flex items-center justify-center space-x-3 px-6 md:px-8 py-3 md:py-4 shadow-xl shadow-primary-500/20 text-xs md:text-base">
+                <Plus size={20} md:size={22} />
                 <span>Add Material</span>
              </button>
            ) : (
-             <button onClick={() => setIsRequestModalOpen(true)} className="btn-primary flex items-center space-x-3 px-8 py-4 shadow-xl shadow-primary-500/20">
-                <Send size={22} />
+             <button onClick={() => setIsRequestModalOpen(true)} className="btn-primary flex items-center justify-center space-x-3 px-6 md:px-8 py-3 md:py-4 shadow-xl shadow-primary-500/20 text-xs md:text-base">
+                <Send size={20} md:size={22} />
                 <span>Request Material</span>
              </button>
            )}
-           <div className="flex bg-white p-2 rounded-[1.5rem] shadow-sm border border-slate-100 italic">
+           <div className="flex bg-white p-1 md:p-2 rounded-[1rem] md:rounded-[1.5rem] shadow-sm border border-slate-100 italic w-full sm:w-auto">
               {['Inventory', 'Requests'].map(tab => (
                  <button 
                     key={tab}
                     onClick={() => setActiveTab(tab)}
-                    className={`px-8 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                    className={`flex-1 sm:flex-none px-4 md:px-8 py-2 md:py-2.5 rounded-lg md:rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all ${
                       activeTab === tab ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/20' : 'text-slate-500 hover:bg-slate-50'
                     }`}
                  >
@@ -177,21 +177,21 @@ const Materials = () => {
 
       {activeTab === 'Inventory' ? (
         <div className="space-y-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
             {[
               { label: 'Total Items', val: materials.length, icon: Package, color: 'primary' },
               { label: 'Low Stock', val: materials.filter(m => m.quantity <= m.minStock).length, icon: AlertTriangle, color: 'rose' },
               { label: 'Active Requests', val: requests.filter(r => r.status === 'Pending').length || '0', icon: Clock, color: 'amber' },
               { label: 'Export Data', val: 'CSV', icon: Download, color: 'emerald', action: exportInventory },
             ].map((s, i) => (
-              <div key={i} onClick={s.action} className={`bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 hover:shadow-xl transition-all group ${s.action ? 'cursor-pointer' : ''}`}>
-                 <div className="flex justify-between items-start mb-6">
-                    <div className="w-12 h-12 bg-slate-50 text-primary-500 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                       <s.icon size={22} />
+              <div key={i} onClick={s.action} className={`bg-white p-4 md:p-8 rounded-[1.5rem] md:rounded-[2.5rem] shadow-sm border border-slate-100 hover:shadow-xl transition-all group ${s.action ? 'cursor-pointer' : ''}`}>
+                 <div className="flex justify-between items-start mb-4 md:mb-6">
+                    <div className="w-10 h-10 md:w-12 md:h-12 bg-slate-50 text-primary-500 rounded-xl md:rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                       <s.icon size={18} md:size={22} />
                     </div>
                  </div>
-                 <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest italic">{s.label}</p>
-                 <h3 className="text-3xl font-black text-slate-900 mt-1">{s.val}</h3>
+                 <p className="text-slate-500 text-[8px] md:text-[10px] font-black uppercase tracking-widest italic">{s.label}</p>
+                 <h3 className="text-xl md:text-3xl font-black text-slate-900 mt-1">{s.val}</h3>
               </div>
             ))}
           </div>
@@ -209,7 +209,7 @@ const Materials = () => {
                 </div>
              </div>
              <div className="overflow-x-auto">
-                <table className="w-full text-left">
+                <table className="w-full text-left min-w-[800px]">
                    <thead className="bg-slate-50 text-slate-400 text-[10px] uppercase font-black tracking-widest">
                       <tr>
                          <th className="px-8 py-6 italic">Material Identity</th>

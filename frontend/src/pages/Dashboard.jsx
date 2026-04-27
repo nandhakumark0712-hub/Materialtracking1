@@ -382,7 +382,7 @@ const Dashboard = () => {
   return (
     <div className="space-y-8 animate-in fade-in duration-700">
       {/* Premium Hero Section */}
-      <div className="relative bg-white p-12 rounded-[4.5rem] border border-slate-100 shadow-sm overflow-hidden group">
+      <div className="relative bg-white p-6 md:p-12 rounded-[2.5rem] md:rounded-[4.5rem] border border-slate-100 shadow-sm overflow-hidden group">
         <div className="absolute top-0 right-0 w-96 h-96 bg-primary-50 rounded-full -mr-48 -mt-48 group-hover:scale-110 transition-transform duration-1000"></div>
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between">
           <div>
@@ -390,20 +390,20 @@ const Dashboard = () => {
               <span className="px-4 py-1.5 bg-primary-500 text-white text-[9px] font-black uppercase tracking-widest rounded-full shadow-lg shadow-primary-500/20">Active Session</span>
               <span className="text-slate-400 text-[9px] font-black uppercase tracking-widest">Unit ID: {user?._id?.slice(-8)}</span>
             </div>
-            <h1 className="text-5xl font-black text-slate-900 italic uppercase tracking-tighter leading-none mb-2">
+            <h1 className="text-3xl md:text-5xl font-black text-slate-900 italic uppercase tracking-tighter leading-tight md:leading-none mb-2">
               Commander <span className="text-primary-500">{user?.name.split(' ')[0]}</span>
             </h1>
-            <p className="text-slate-500 font-bold uppercase text-[11px] tracking-[0.3em] italic flex items-center">
+            <p className="text-slate-500 font-bold uppercase text-[9px] md:text-[11px] tracking-[0.2em] md:tracking-[0.3em] italic flex items-center">
               <Activity size={14} className="mr-2 text-primary-500 animate-pulse" /> Operational Footprint / {format(new Date(), 'MMMM d, yyyy')}
             </p>
           </div>
           
-          <div className="mt-8 md:mt-0 flex items-center space-x-6">
+          <div className="mt-8 md:mt-0 flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-6">
             {!stats?.attendance ? (
               <button 
                 onClick={handleCheckIn}
                 disabled={isClocking}
-                className="px-12 py-6 bg-slate-900 hover:bg-black text-white rounded-[2.5rem] font-black uppercase text-xs tracking-[0.2em] shadow-2xl transition-all flex items-center space-x-4 group/btn"
+                className="w-full sm:w-auto px-8 md:px-12 py-4 md:py-6 bg-slate-900 hover:bg-black text-white rounded-[1.5rem] md:rounded-[2.5rem] font-black uppercase text-[10px] md:text-xs tracking-[0.2em] shadow-2xl transition-all flex items-center justify-center space-x-4 group/btn"
               >
                 <Zap size={20} className="text-primary-500 group-hover/btn:animate-bounce" />
                 <span>{isClocking ? 'Authorizing...' : 'Initialize Shift'}</span>
@@ -421,12 +421,12 @@ const Dashboard = () => {
       </div>
 
       {/* Enterprise Tab Navigation */}
-      <div className="flex space-x-2 bg-slate-200/50 p-2 rounded-[2.5rem] w-max mx-auto shadow-inner">
+      <div className="flex flex-wrap justify-center gap-2 bg-slate-200/50 p-2 rounded-[1.5rem] md:rounded-[2.5rem] w-full md:w-max mx-auto shadow-inner">
         {['Overview', 'Missions', 'Logistics'].map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`px-8 py-4 rounded-[2rem] text-[10px] font-black uppercase tracking-widest transition-all ${
+            className={`flex-1 md:flex-none px-4 md:px-8 py-3 md:py-4 rounded-[1rem] md:rounded-[2.5rem] text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all ${
               activeTab === tab 
                 ? 'bg-white text-slate-900 shadow-xl scale-105' 
                 : 'text-slate-500 hover:text-slate-700'
