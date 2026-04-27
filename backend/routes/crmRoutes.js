@@ -11,6 +11,10 @@ const { protect, authorize } = require('../middleware/authMiddleware');
 const router = express.Router();
 
 router.use(protect);
+
+// Lead Approval (Admin/Manager) - Priority Match
+router.put('/lead-approval/:id', authorize('Admin', 'Manager'), handleLeadApproval);
+
 // General CRM access
 router.use(authorize('Sales Team', 'Admin', 'Manager', 'HR'));
 
@@ -19,9 +23,6 @@ router.get('/stats', getCRMStats);
 router.route('/customers')
     .get(getCustomers)
     .post(createCustomer);
-
-// Lead Approval (Admin/Manager)
-router.put('/lead-approval/:id', authorize('Admin', 'Manager'), handleLeadApproval);
 
 router.route('/customers/:id')
     .put(updateCustomer)

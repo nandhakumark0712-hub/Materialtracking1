@@ -231,12 +231,18 @@ exports.handleLeadApproval = async (req, res, next) => {
         await customer.save();
 
         // Notify Sales Person
-        await Notification.create({
-            to: customer.assignedTo,
-            title: 'Lead Approval Update',
-            message: `Your lead "${customer.name}" has been ${approvalStatus}.`,
-            type: 'General'
-        });
+        if (customer.assignedTo) {
+            try {
+                await Notification.create({
+                    to: customer.assignedTo,
+                    title: 'Lead Approval Update',
+                    message: `Your lead "${customer.name}" has been ${approvalStatus}.`,
+                    type: 'General'
+                });
+            } catch (notifyErr) {
+                console.error('Notification failed:', notifyErr);
+            }
+        }
 
         res.status(200).json({ success: true, data: customer });
     } catch (err) {
