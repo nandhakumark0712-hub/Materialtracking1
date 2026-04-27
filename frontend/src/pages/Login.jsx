@@ -150,7 +150,7 @@ const Login = () => {
           Powered by Smart Track Enterprise
         </p>
       </div>
-      </div>
+
 
       {/* Forgot Password Modal */}
       <Modal 
