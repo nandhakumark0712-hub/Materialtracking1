@@ -6,7 +6,8 @@ import {
   Layers, UserCheck, Timer, LogOut, CheckCircle2, ListTodo,
   FileText, ExternalLink, ArrowRight, Briefcase, DollarSign,
   UserPlus, UserMinus, HardHat, Zap, Download, Target, PieChart,
-  BarChart3, MessageSquare, Star, ShoppingCart, IndianRupee
+  BarChart3, MessageSquare, Star, ShoppingCart, IndianRupee,
+  Award, Trophy, Phone
 } from 'lucide-react';
 import {
   Chart as ChartJS,
@@ -758,7 +759,5 @@ const Dashboard = () => {
     </div>
   );
 };
-
-const Trophy = (props) => <Star {...props} />;
 
 export default Dashboard;
