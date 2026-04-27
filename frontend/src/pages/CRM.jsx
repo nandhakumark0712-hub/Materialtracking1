@@ -632,7 +632,7 @@ const CRM = () => {
                      </div>
                      <div>
                         <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1 italic">Quantity Required</label>
-                        <input type="number" className="input-field" value={leadForm.quantityRequired} onChange={e => setLeadForm({...leadForm, quantityRequired: e.target.value})} />
+                        <input type="number" className="input-field" value={leadForm.quantityRequired} onChange={e => setLeadForm({...leadForm, quantityRequired: Number(e.target.value)})} />
                      </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -640,12 +640,12 @@ const CRM = () => {
                         <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1 italic">Est. Deal Value (INR)</label>
                         <div className="relative">
                            <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={16} />
-                           <input type="number" className="input-field pl-12" value={leadForm.estimatedDealValue} onChange={e => setLeadForm({...leadForm, estimatedDealValue: e.target.value})} />
+                           <input type="number" className="input-field pl-12" value={leadForm.estimatedDealValue} onChange={e => setLeadForm({...leadForm, estimatedDealValue: Number(e.target.value)})} />
                         </div>
                      </div>
                      <div>
                         <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1 italic">Close Probability (%)</label>
-                        <input type="number" className="input-field" value={leadForm.closeProbability} onChange={e => setLeadForm({...leadForm, closeProbability: e.target.value})} />
+                        <input type="number" className="input-field" value={leadForm.closeProbability} onChange={e => setLeadForm({...leadForm, closeProbability: Number(e.target.value)})} />
                      </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
