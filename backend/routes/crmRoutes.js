@@ -20,23 +20,23 @@ router.route('/customers')
     .get(getCustomers)
     .post(createCustomer);
 
+// Lead Approval (Admin/Manager)
+router.put('/customers/:id/approval', authorize('Admin', 'Manager'), handleLeadApproval);
+
 router.route('/customers/:id')
     .put(updateCustomer)
     .delete(deleteCustomer);
-
-// Lead Approval (Admin/Manager)
-router.put('/customers/:id/approval', authorize('Admin', 'Manager'), handleLeadApproval);
 
 router.route('/deals')
     .get(getDeals)
     .post(createDeal);
 
+// Deal Approval (Admin Only)
+router.put('/deals/:id/approval', authorize('Admin'), handleDealApproval);
+
 router.route('/deals/:id')
     .put(updateDeal)
     .delete(deleteDeal);
-
-// Deal Approval (Admin Only)
-router.put('/deals/:id/approval', authorize('Admin'), handleDealApproval);
 
 router.route('/followups')
     .get(getFollowUps)
