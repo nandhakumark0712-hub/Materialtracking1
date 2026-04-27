@@ -5,7 +5,7 @@ import {
   Clock, Calendar, CheckCircle, Bell, Activity, ShieldCheck,
   Layers, UserCheck, Timer, LogOut, CheckCircle2, ListTodo,
   FileText, ExternalLink, ArrowRight, Briefcase, DollarSign,
-  UserPlus, UserMinus, HardHat, Zap
+  UserPlus, UserMinus, HardHat, Zap, Download
 } from 'lucide-react';
 import {
   Chart as ChartJS,
