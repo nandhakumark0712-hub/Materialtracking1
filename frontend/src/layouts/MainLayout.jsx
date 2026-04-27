@@ -66,8 +66,8 @@ const MainLayout = () => {
       >
         <div className="p-6 flex items-center justify-between">
           <div className={`flex items-center space-x-3 ${!isSidebarOpen && 'hidden'}`}>
-            <div className="w-10 h-10 bg-primary-50 rounded-full flex items-center justify-center shadow-md">
-              <span className="text-primary-500 font-extrabold text-xl">S</span>
+            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm overflow-hidden">
+              <img src="/logo.png" alt="Smart Track Logo" className="w-full h-full object-contain p-1" />
             </div>
             <span className="text-white font-black text-2xl tracking-tighter">Smart Track</span>
           </div>
