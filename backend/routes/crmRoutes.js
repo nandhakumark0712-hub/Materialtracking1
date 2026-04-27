@@ -21,7 +21,7 @@ router.route('/customers')
     .post(createCustomer);
 
 // Lead Approval (Admin/Manager)
-router.put('/customers/:id/approval', authorize('Admin', 'Manager'), handleLeadApproval);
+router.put('/lead-approval/:id', authorize('Admin', 'Manager'), handleLeadApproval);
 
 router.route('/customers/:id')
     .put(updateCustomer)
@@ -32,7 +32,7 @@ router.route('/deals')
     .post(createDeal);
 
 // Deal Approval (Admin Only)
-router.put('/deals/:id/approval', authorize('Admin'), handleDealApproval);
+router.put('/deal-approval/:id', authorize('Admin'), handleDealApproval);
 
 router.route('/deals/:id')
     .put(updateDeal)

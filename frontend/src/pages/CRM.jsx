@@ -104,7 +104,7 @@ const CRM = () => {
 
   const handleApproveLead = async (leadId, status) => {
     try {
-      await API.put(`/api/crm/customers/${leadId}/approval`, { approvalStatus: status });
+      await API.put(`/api/crm/lead-approval/${leadId}`, { approvalStatus: status });
       setIsManageLeadModalOpen(false);
       fetchData();
     } catch (error) {
