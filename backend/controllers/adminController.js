@@ -3,25 +3,36 @@ const Task = require('../models/Task');
 const Leave = require('../models/Leave');
 const Material = require('../models/Material');
 const ActivityLog = require('../models/ActivityLog');
+const Deal = require('../models/Deal');
+const PurchaseRequest = require('../models/PurchaseRequest');
+const MaterialRequest = require('../models/MaterialRequest');
 
 // @desc    Get dashboard stats
 // @route   GET /api/admin/stats
 // @access  Private/Admin
 exports.getStats = async (req, res, next) => {
     try {
-        const totalUsers = await User.countDocuments();
-        const activeUsersCount = await User.countDocuments({ activeStatus: true });
-        
-        // Use try-catch for these just in case schemas aren't matched yet
-        let totalTasks = 0;
-        let pendingLeaves = 0;
-        let lowStockMaterials = 0;
-
-        try { totalTasks = await Task.countDocuments(); } catch(e) {}
-        try { pendingLeaves = await Leave.countDocuments({ status: 'Pending' }); } catch(e) {}
-        try { lowStockMaterials = await Material.countDocuments({ quantity: { $lt: 10 } }); } catch(e) {}
-
-        const recentLogs = await ActivityLog.find().sort('-createdAt').limit(5).populate('user', 'name');
+        const [
+            totalUsers,
+            activeUsersCount,
+            totalTasks,
+            pendingLeaves,
+            lowStockMaterials,
+            pendingDeals,
+            pendingPurchases,
+            pendingMaterialUsage,
+            recentLogs
+        ] = await Promise.all([
+            User.countDocuments(),
+            User.countDocuments({ activeStatus: true }),
+            Task.countDocuments(),
+            Leave.countDocuments({ status: 'Pending' }),
+            Material.countDocuments({ quantity: { $lt: 10 } }),
+            Deal.countDocuments({ status: 'Pending' }),
+            PurchaseRequest.countDocuments({ status: 'Pending' }),
+            MaterialRequest.countDocuments({ status: 'Pending' }),
+            ActivityLog.find().sort('-createdAt').limit(5).populate('user', 'name')
+        ]);
 
         res.status(200).json({
             success: true,
@@ -31,6 +42,10 @@ exports.getStats = async (req, res, next) => {
                 totalTasks,
                 pendingLeaves,
                 lowStockMaterials,
+                pendingDeals,
+                pendingPurchases,
+                pendingMaterialUsage,
+                totalApprovalsPending: pendingLeaves + pendingDeals + pendingPurchases + pendingMaterialUsage,
                 recentLogs
             }
         });

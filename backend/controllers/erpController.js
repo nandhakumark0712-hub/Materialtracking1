@@ -58,12 +58,30 @@ exports.createOrder = async (req, res, next) => {
 // @access  Private/Manager
 exports.updateOrder = async (req, res, next) => {
     try {
-        const order = await Order.findByIdAndUpdate(req.params.id, req.body, {
+        const order = await Order.findById(req.params.id);
+        if (!order) return res.status(404).json({ message: 'Order not found' });
+
+        const oldStatus = order.status;
+        const newStatus = req.body.status;
+
+        // If status changing to Received, update inventory
+        if (newStatus === 'Received' && oldStatus !== 'Received') {
+            const Material = require('../models/Material');
+            for (const item of order.items) {
+                if (item.material) {
+                    await Material.findByIdAndUpdate(item.material, {
+                        $inc: { quantity: item.quantity }
+                    });
+                }
+            }
+        }
+
+        const updatedOrder = await Order.findByIdAndUpdate(req.params.id, req.body, {
             new: true,
             runValidators: true
         });
-        if (!order) return res.status(404).json({ message: 'Order not found' });
-        res.status(200).json({ success: true, data: order });
+
+        res.status(200).json({ success: true, data: updatedOrder });
     } catch (err) {
         next(err);
     }

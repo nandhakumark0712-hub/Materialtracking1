@@ -169,12 +169,23 @@ const Dashboard = () => {
   if (user?.role === 'Admin' && stats) {
      return (
         <div className="space-y-8 animate-in fade-in duration-500">
-           <div className="flex justify-between items-center bg-slate-900 p-10 rounded-[3.5rem] text-white">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center bg-slate-900 p-10 rounded-[3.5rem] text-white gap-6">
               <div>
                  <h1 className="text-4xl font-black italic">System Oversight</h1>
                  <p className="text-white/50 font-bold uppercase text-[10px] tracking-[0.3em] mt-2">Global Master Dashboard</p>
               </div>
-              <ShieldCheck size={48} className="text-primary-500" />
+              <div className="flex flex-wrap gap-4">
+                 <a href={`${API.defaults.baseURL}/api/reports/inventory`} target="_blank" rel="noreferrer" className="px-6 py-3 bg-white/10 hover:bg-white/20 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all border border-white/10 flex items-center">
+                    <Download size={14} className="mr-2" /> Inventory
+                 </a>
+                 <a href={`${API.defaults.baseURL}/api/reports/sales`} target="_blank" rel="noreferrer" className="px-6 py-3 bg-white/10 hover:bg-white/20 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all border border-white/10 flex items-center">
+                    <Download size={14} className="mr-2" /> Sales
+                 </a>
+                 <a href={`${API.defaults.baseURL}/api/reports/procurement`} target="_blank" rel="noreferrer" className="px-6 py-3 bg-white/10 hover:bg-white/20 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all border border-white/10 flex items-center">
+                    <Download size={14} className="mr-2" /> Procurement
+                 </a>
+              </div>
+              <ShieldCheck size={48} className="text-primary-500 hidden xl:block" />
            </div>
 
            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

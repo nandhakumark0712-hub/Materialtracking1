@@ -13,12 +13,15 @@ exports.submitPurchaseRequest = async (req, res, next) => {
         });
 
         // Notify Admin
-        await Notification.create({
-            to: (await require('../models/User').findOne({ role: 'Admin' }))._id,
-            title: 'New Purchase Request',
-            message: `Manager ${req.user.name} submitted a request for ${req.body.itemName}`,
-            type: 'General'
-        });
+        const Admin = await require('../models/User').findOne({ role: 'Admin' });
+        if (Admin) {
+            await Notification.create({
+                to: Admin._id,
+                title: 'New Purchase Request',
+                message: `Manager ${req.user.name} submitted a request for ${req.body.itemName}`,
+                type: 'General'
+            });
+        }
 
         const io = req.app.get('io');
         if (io) io.emit('notification', { message: 'New Purchase Request Received' });
@@ -38,6 +41,7 @@ exports.getPurchaseRequests = async (req, res, next) => {
         const requests = await PurchaseRequest.find(query)
             .populate('requester', 'name role')
             .populate('vendor', 'name')
+            .populate('material', 'name sku')
             .sort('-createdAt');
             
         res.status(200).json({ success: true, count: requests.length, data: requests });
@@ -68,7 +72,11 @@ exports.handlePurchaseApproval = async (req, res, next) => {
                 vendor: request.vendor,
                 totalAmount: request.amount,
                 status: 'Approved',
-                items: [{ itemName: request.itemName, quantity: request.quantity, price: request.amount / request.quantity }]
+                items: [{ 
+                    material: request.material, 
+                    quantity: request.quantity, 
+                    price: request.amount / request.quantity 
+                }]
             });
         }
 

@@ -54,6 +54,7 @@ app.use('/api/ess', require('./routes/essRoutes'));
 app.use('/api/performance', require('./routes/performanceRoutes'));
 app.use('/api/field-visits', require('./routes/fieldVisitRoutes'));
 app.use('/api/users', require('./routes/userRoutes'));
+app.use('/api/reports', require('./routes/reportRoutes'));
 
 // Serve static assets in production
 if (process.env.NODE_ENV === 'production') {

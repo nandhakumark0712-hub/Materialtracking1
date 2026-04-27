@@ -145,7 +145,42 @@ exports.updateDeal = async (req, res, next) => {
             return res.status(401).json({ message: 'Not authorized' });
         }
 
+        // Restrict 'Won' status to Approved deals only
+        if (req.body.status === 'Won' && deal.status !== 'Approved' && req.user.role !== 'Admin') {
+            return res.status(400).json({ message: 'Deal must be Approved by Admin before marking as Won' });
+        }
+
         deal = await Deal.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+        res.status(200).json({ success: true, data: deal });
+    } catch (err) {
+        next(err);
+    }
+};
+
+// @desc    Handle Deal Approval
+// @route   PUT /api/crm/deals/:id/approval
+// @access  Private (Admin)
+exports.handleDealApproval = async (req, res, next) => {
+    try {
+        const { status } = req.body;
+        const deal = await Deal.findById(req.params.id);
+
+        if (!deal) return res.status(404).json({ message: 'Deal not found' });
+
+        deal.status = status;
+        await deal.save();
+
+        // Notify Sales Person
+        await Notification.create({
+            to: deal.assignedTo,
+            title: 'Deal Approval Update',
+            message: `Your deal "${deal.title}" has been ${status}.`,
+            type: 'General'
+        });
+
+        const io = req.app.get('io');
+        if (io) io.emit('notification', { userId: deal.assignedTo, message: `Deal ${status}` });
+
         res.status(200).json({ success: true, data: deal });
     } catch (err) {
         next(err);

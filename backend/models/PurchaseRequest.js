@@ -10,6 +10,10 @@ const purchaseRequestSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Please add item name']
     },
+    material: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'Material'
+    },
     quantity: {
         type: Number,
         required: [true, 'Please add quantity']

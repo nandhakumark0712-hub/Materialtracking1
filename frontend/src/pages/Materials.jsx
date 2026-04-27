@@ -113,10 +113,10 @@ const Materials = () => {
 
   const handleApproveReject = async (id, status) => {
     try {
-      await API.put(`/api/materials/requests/${id}`, { status });
+      await API.put(`/api/approvals/material/${id}`, { status });
       fetchData();
     } catch (err) {
-      alert('Failed to update request status');
+      alert(err.response?.data?.message || 'Failed to update request status');
     }
   };
 

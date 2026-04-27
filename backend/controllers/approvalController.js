@@ -15,7 +15,7 @@ exports.getAllPendingRequests = async (req, res, next) => {
             GeneralRequest.find({ status: 'Pending' }).populate('requester', 'name role'),
             Deal.find({ status: 'Pending' }).populate('assignedTo', 'name role').populate('customer', 'name'),
             Material.find({ status: 'Pending Approval' }).populate('createdBy', 'name role'),
-            MaterialRequest.find({ status: 'Pending' }).populate('employee', 'name role').populate('material', 'name stock'),
+            MaterialRequest.find({ status: 'Pending' }).populate('employee', 'name role').populate('material', 'name quantity'),
             Order.find({ status: 'Pending Approval' }).populate('vendor', 'name'),
             PurchaseRequest.find({ status: 'Pending' }).populate('requester', 'name role').populate('vendor', 'name')
         ]);
@@ -27,8 +27,8 @@ exports.getAllPendingRequests = async (req, res, next) => {
                 deals,
                 materials, // New Materials
                 mrUsage,   // Material Usage Requests
-                orders,    // Purchase Orders (Legacy/Manual)
-                purchases  // New Purchase Requests
+                orders,    // Purchase Orders
+                purchases  // Purchase Requests from Managers
             }
         });
     } catch (err) {
@@ -40,11 +40,11 @@ exports.getAllPendingRequests = async (req, res, next) => {
 // @route   PUT /api/approvals/order/:id
 exports.handleOrderApproval = async (req, res, next) => {
     try {
-        const { status } = req.body;
+        const { status, adminComment } = req.body;
         const order = await Order.findById(req.params.id);
         if (!order) return res.status(404).json({ message: 'Order not found' });
 
-        order.status = status === 'Approved' ? 'Placed' : 'Cancelled';
+        order.status = status === 'Approved' ? 'Approved' : 'Cancelled';
         await order.save();
 
         res.status(200).json({ success: true, data: order });
@@ -75,7 +75,7 @@ exports.handleMaterialCreationApproval = async (req, res, next) => {
 // @access  Private (Admin)
 exports.handleDealApproval = async (req, res, next) => {
     try {
-        const { status, adminComment } = req.body; // Approved or Rejected
+        const { status, adminComment } = req.body;
         const deal = await Deal.findById(req.params.id);
 
         if (!deal) return res.status(404).json({ message: 'Deal not found' });
@@ -83,7 +83,6 @@ exports.handleDealApproval = async (req, res, next) => {
         deal.status = status;
         await deal.save();
 
-        // Notify user
         await Notification.create({
             to: deal.assignedTo,
             title: 'Deal Update',
@@ -91,11 +90,8 @@ exports.handleDealApproval = async (req, res, next) => {
             type: 'General'
         });
 
-        // Socket.io real-time update
         const io = req.app.get('io');
-        if (io) {
-            io.emit('notification', { userId: deal.assignedTo, message: `Deal ${status}` });
-        }
+        if (io) io.emit('notification', { userId: deal.assignedTo, message: `Deal ${status}` });
 
         res.status(200).json({ success: true, data: deal });
     } catch (err) {
@@ -103,7 +99,7 @@ exports.handleDealApproval = async (req, res, next) => {
     }
 };
 
-// @desc    Approve/Reject Material Request
+// @desc    Approve/Reject Material Request (Usage)
 // @route   PUT /api/approvals/material/:id
 // @access  Private (Admin)
 exports.handleMaterialApproval = async (req, res, next) => {
@@ -114,12 +110,10 @@ exports.handleMaterialApproval = async (req, res, next) => {
         if (!matReq) return res.status(404).json({ message: 'Request not found' });
 
         if (status === 'Approved') {
-            // Check stock
-            if (matReq.material.stock < matReq.quantity) {
+            if (matReq.material.quantity < matReq.quantity) {
                 return res.status(400).json({ message: 'Insufficient stock to approve' });
             }
-            // Deduct stock
-            matReq.material.stock -= matReq.quantity;
+            matReq.material.quantity -= matReq.quantity;
             await matReq.material.save();
         }
 
@@ -135,9 +129,7 @@ exports.handleMaterialApproval = async (req, res, next) => {
         });
 
         const io = req.app.get('io');
-        if (io) {
-            io.emit('notification', { userId: matReq.employee, message: `Material Request ${status}` });
-        }
+        if (io) io.emit('notification', { userId: matReq.employee, message: `Material Request ${status}` });
 
         res.status(200).json({ success: true, data: matReq });
     } catch (err) {
