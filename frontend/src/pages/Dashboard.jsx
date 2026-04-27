@@ -165,7 +165,7 @@ const Dashboard = () => {
 
   // --- SALES TEAM VIEW (Professional CRM Dashboard) ---
   if (user?.role === 'Sales Team') {
-     const revenueProgress = Math.min(((stats.revenueGenerated / stats.target) * 100).toFixed(0), 100);
+     const revenueProgress = Math.min((((stats?.revenueGenerated || 0) / (stats?.target || 1000000)) * 100).toFixed(0), 100);
      
      return (
         <div className="space-y-8 animate-in fade-in duration-700">
@@ -185,12 +185,12 @@ const Dashboard = () => {
                  <div className="flex bg-white/5 backdrop-blur-md border border-white/10 p-6 md:p-8 rounded-[2.5rem] gap-8">
                     <div className="text-center">
                        <p className="text-[9px] font-black uppercase text-white/40 tracking-widest mb-1 italic">Conversion Rate</p>
-                       <h4 className="text-3xl font-black italic tracking-tighter text-emerald-400">{stats.conversionRate}%</h4>
+                       <h4 className="text-3xl font-black italic tracking-tighter text-emerald-400">{stats?.conversionRate || 0}%</h4>
                     </div>
                     <div className="w-px bg-white/10 h-10 self-center"></div>
                     <div className="text-center">
                        <p className="text-[9px] font-black uppercase text-white/40 tracking-widest mb-1 italic">Monthly Yield</p>
-                       <h4 className="text-3xl font-black italic tracking-tighter text-primary-500">₹{(stats.revenueGenerated/1000).toFixed(0)}k</h4>
+                       <h4 className="text-3xl font-black italic tracking-tighter text-primary-500">₹{((stats?.revenueGenerated || 0)/1000).toFixed(0)}k</h4>
                     </div>
                  </div>
               </div>
@@ -199,11 +199,11 @@ const Dashboard = () => {
            {/* Summary KPI Matrix */}
            <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
               {[
-                { label: 'Total Leads', val: stats.totalLeads, icon: UserPlus, color: 'text-blue-500', bg: 'bg-blue-50' },
-                { label: 'Qualified Prospects', val: stats.prospects, icon: Target, color: 'text-indigo-500', bg: 'bg-indigo-50' },
-                { label: 'Active Pipeline', val: stats.activeDeals, icon: Briefcase, color: 'text-amber-500', bg: 'bg-amber-50' },
-                { label: 'Deals Won', val: stats.wonDeals, icon: Trophy, color: 'text-emerald-500', bg: 'bg-emerald-50' },
-                { label: 'Pipeline Value', val: `₹${(stats.pipelineValue/1000).toFixed(0)}k`, icon: IndianRupee, color: 'text-primary-500', bg: 'bg-primary-50' },
+                { label: 'Total Leads', val: stats?.totalLeads || 0, icon: UserPlus, color: 'text-blue-500', bg: 'bg-blue-50' },
+                { label: 'Qualified Prospects', val: stats?.prospects || 0, icon: Target, color: 'text-indigo-500', bg: 'bg-indigo-50' },
+                { label: 'Active Pipeline', val: stats?.activeDeals || 0, icon: Briefcase, color: 'text-amber-500', bg: 'bg-amber-50' },
+                { label: 'Deals Won', val: stats?.wonDeals || 0, icon: Trophy, color: 'text-emerald-500', bg: 'bg-emerald-50' },
+                { label: 'Pipeline Value', val: `₹${((stats?.pipelineValue || 0)/1000).toFixed(0)}k`, icon: IndianRupee, color: 'text-primary-500', bg: 'bg-primary-50' },
               ].map((s, i) => (
                 <div key={i} className="bg-white p-6 md:p-8 rounded-[2.5rem] shadow-sm border border-slate-100 hover:shadow-xl transition-all group">
                    <div className={`w-12 h-12 ${s.bg} ${s.color} rounded-2xl flex items-center justify-center mb-6 transition-transform group-hover:rotate-6`}>
@@ -231,7 +231,7 @@ const Dashboard = () => {
                           labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
                           datasets: [{
                              label: 'Revenue',
-                             data: [stats.revenueGenerated * 0.2, stats.revenueGenerated * 0.5, stats.revenueGenerated * 0.8, stats.revenueGenerated],
+                             data: [(stats?.revenueGenerated || 0) * 0.2, (stats?.revenueGenerated || 0) * 0.5, (stats?.revenueGenerated || 0) * 0.8, (stats?.revenueGenerated || 0)],
                              backgroundColor: '#ff6d2e',
                              borderRadius: 12,
                              barThickness: 40
@@ -254,7 +254,7 @@ const Dashboard = () => {
                        data={{
                           labels: ['Leads', 'Prospects', 'Deals'],
                           datasets: [{
-                             data: [stats.totalLeads, stats.prospects, stats.activeDeals],
+                             data: [stats?.totalLeads || 0, stats?.prospects || 0, stats?.activeDeals || 0],
                              backgroundColor: ['#0ea5e9', '#6366f1', '#ff6d2e'],
                              borderWidth: 0,
                              cutout: '80%'
@@ -266,7 +266,7 @@ const Dashboard = () => {
                        }}
                     />
                     <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none -mt-6">
-                       <span className="text-3xl font-black text-slate-900">{stats.totalLeads + stats.prospects + stats.activeDeals}</span>
+                       <span className="text-3xl font-black text-slate-900">{(stats?.totalLeads || 0) + (stats?.prospects || 0) + (stats?.activeDeals || 0)}</span>
                        <span className="text-[8px] font-black uppercase text-slate-400 tracking-[0.2em]">Active Matrix</span>
                     </div>
                  </div>
@@ -293,7 +293,7 @@ const Dashboard = () => {
                              </div>
                           </div>
                           <div className="text-right">
-                             <p className="font-black text-slate-900 italic">₹{(deal.value/1000).toFixed(0)}k</p>
+                             <p className="font-black text-slate-900 italic">₹{((deal.value || 0)/1000).toFixed(0)}k</p>
                              <span className="text-[8px] font-black uppercase text-primary-500 tracking-widest">Revenue Potential</span>
                           </div>
                        </div>
@@ -308,7 +308,7 @@ const Dashboard = () => {
                     <div className="absolute -top-10 -right-10 w-40 h-40 bg-primary-500/10 rounded-full blur-3xl group-hover:scale-150 transition-all duration-1000"></div>
                     <div className="flex justify-between items-center mb-8 relative z-10">
                        <h3 className="text-lg font-black italic uppercase tracking-tighter">Strategic Outreach</h3>
-                       <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center text-primary-500 font-black">{stats.followUpsToday}</div>
+                       <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center text-primary-500 font-black">{stats?.followUpsToday || 0}</div>
                     </div>
                     <div className="space-y-4 relative z-10">
                        {extraData.followups?.filter(f => f.status === 'Pending').slice(0, 3).map(follow => (
