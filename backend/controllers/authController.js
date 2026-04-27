@@ -78,6 +78,33 @@ exports.getMe = async (req, res, next) => {
     }
 };
 
+// @desc    Reset password
+// @route   POST /api/auth/reset-password
+// @access  Public
+exports.resetPassword = async (req, res, next) => {
+    try {
+        const { username, newPassword } = req.body;
+
+        const user = await User.findOne({ 
+            username: { $regex: new RegExp(`^${username}$`, 'i') } 
+        });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        user.password = newPassword;
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: 'Password updated successfully'
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
 // Get token from model, create cookie and send response
 const sendTokenResponse = (user, statusCode, res) => {
     // Create token

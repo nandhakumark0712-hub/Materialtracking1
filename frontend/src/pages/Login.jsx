@@ -4,6 +4,7 @@ import { login, reset } from '../redux/slices/authSlice';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, Lock, Loader2, AlertCircle, ShieldAlert, Phone, Mail, CheckCircle2 } from 'lucide-react';
+import API from '../utils/api';
 import Modal from '../components/Modal';
 
 const Login = () => {
@@ -15,7 +16,10 @@ const Login = () => {
   const [isForgotModalOpen, setIsForgotModalOpen] = useState(false);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [forgotUsername, setForgotUsername] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [forgotStatus, setForgotStatus] = useState('idle'); // idle, loading, success
+  const [forgotError, setForgotError] = useState('');
 
   const { username, password } = formData;
   const dispatch = useDispatch();
@@ -42,13 +46,31 @@ const Login = () => {
     dispatch(login({ username, password }));
   };
 
-  const handleForgotSubmit = (e) => {
+  const handleForgotSubmit = async (e) => {
     e.preventDefault();
+    setForgotError('');
+    
+    if (newPassword !== confirmPassword) {
+      setForgotError('Passwords do not match');
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      setForgotError('Password must be at least 6 characters');
+      return;
+    }
+
     setForgotStatus('loading');
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      await API.post('/api/auth/reset-password', {
+        username: forgotUsername,
+        newPassword
+      });
       setForgotStatus('success');
-    }, 1500);
+    } catch (err) {
+      setForgotError(err.response?.data?.message || 'Failed to reset password');
+      setForgotStatus('idle');
+    }
   };
 
   return (
@@ -116,6 +138,9 @@ const Login = () => {
                      setIsForgotModalOpen(true);
                      setForgotStatus('idle');
                      setForgotUsername('');
+                     setNewPassword('');
+                     setConfirmPassword('');
+                     setForgotError('');
                   }}
                   className="text-xs font-bold text-primary-500 hover:underline"
                >
@@ -178,23 +203,56 @@ const Login = () => {
                </button>
             </div>
          ) : (
-            <form onSubmit={handleForgotSubmit} className="space-y-6">
+            <form onSubmit={handleForgotSubmit} className="space-y-5">
                <div className="bg-amber-50 p-6 rounded-3xl border border-amber-100 flex items-start space-x-4">
                   <ShieldAlert size={24} className="text-amber-500 shrink-0 mt-1" />
                   <p className="text-[10px] text-amber-900 font-bold leading-relaxed italic uppercase tracking-wider">
-                     Verification Required: Password resets must be authorized by a System Admin to maintain organizational integrity.
+                     Authorization Required: Please provide your credentials to authorize the system override.
                   </p>
                </div>
-               <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2">Personnel Username / ID</label>
-                  <input 
-                     required
-                     className="input-field py-4" 
-                     placeholder="e.g. EMP-001 or jdoe"
-                     value={forgotUsername}
-                     onChange={e => setForgotUsername(e.target.value)}
-                  />
+
+               {forgotError && (
+                  <div className="p-4 bg-rose-50 border border-rose-100 rounded-2xl flex items-center space-x-3 text-rose-600">
+                     <AlertCircle size={18} />
+                     <p className="text-xs font-bold">{forgotError}</p>
+                  </div>
+               )}
+
+               <div className="space-y-4">
+                  <div className="space-y-1.5">
+                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2">Personnel Username / ID</label>
+                     <input 
+                        required
+                        className="input-field py-4" 
+                        placeholder="e.g. EMP-001 or jdoe"
+                        value={forgotUsername}
+                        onChange={e => setForgotUsername(e.target.value)}
+                     />
+                  </div>
+                  <div className="space-y-1.5">
+                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2">New Access Key</label>
+                     <input 
+                        required
+                        type="password"
+                        className="input-field py-4" 
+                        placeholder="••••••••"
+                        value={newPassword}
+                        onChange={e => setNewPassword(e.target.value)}
+                     />
+                  </div>
+                  <div className="space-y-1.5">
+                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2">Confirm Access Key</label>
+                     <input 
+                        required
+                        type="password"
+                        className="input-field py-4" 
+                        placeholder="••••••••"
+                        value={confirmPassword}
+                        onChange={e => setConfirmPassword(e.target.value)}
+                     />
+                  </div>
                </div>
+
                <button 
                   type="submit" 
                   disabled={forgotStatus === 'loading'}
@@ -203,7 +261,7 @@ const Login = () => {
                   {forgotStatus === 'loading' ? (
                      <Loader2 size={18} className="animate-spin" />
                   ) : (
-                     <span>Authorize Reset Request</span>
+                     <span>Execute Password Reset</span>
                   )}
                </button>
             </form>
