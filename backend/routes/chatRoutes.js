@@ -16,6 +16,6 @@ router.get('/messages/:userId', getPrivateMessages);
 router.post('/messages', sendPrivateMessage);
 
 router.get('/announcements', getAnnouncements);
-router.post('/announcements', authorize('Admin'), createAnnouncement);
+router.post('/announcements', authorize('Admin', 'Manager', 'HR'), createAnnouncement);
 
 module.exports = router;

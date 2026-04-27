@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { Send, Search, User, MessageSquare, Phone, Video, MoreVertical, Paperclip, Smile, ShieldAlert, Loader2, Megaphone } from 'lucide-react';
+import { Send, Search, User, MessageSquare, Phone, Video, MoreVertical, Paperclip, Smile, ShieldAlert, Loader2, Megaphone, ArrowLeft } from 'lucide-react';
 import API from '../utils/api';
 
 const Chat = () => {
@@ -89,7 +89,7 @@ const Chat = () => {
          } else {
             const res = await API.post('/api/chat/announcements', {
                content: message,
-               title: 'Department Announcement'
+               title: `${currentUser.role} Broadcast Directive`
             });
             setAnnouncements([res.data.data, ...announcements]);
          }
@@ -246,7 +246,7 @@ const Chat = () => {
             </div>
 
             <div className="p-4 md:p-8 bg-white border-t border-slate-50">
-               {activeChat.type === 'group' && currentUser.role !== 'Admin' ? (
+               {activeChat.type === 'group' && !['Admin', 'Manager', 'HR'].includes(currentUser.role) ? (
                   <div className="bg-slate-50 p-4 md:p-6 rounded-[1.5rem] md:rounded-[2.5rem] flex items-center justify-center border border-slate-100 space-x-3 text-center">
                      <ShieldAlert size={16} className="text-slate-400 shrink-0" />
                      <p className="text-[8px] md:text-[10px] font-black uppercase tracking-widest text-slate-400">Broadcast Restricted</p>
