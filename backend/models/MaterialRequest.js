@@ -21,6 +21,7 @@ const materialRequestSchema = new mongoose.Schema({
         enum: ['Pending', 'Approved', 'Rejected'],
         default: 'Pending'
     },
+    adminComment: String,
     approvedBy: {
         type: mongoose.Schema.ObjectId,
         ref: 'User'

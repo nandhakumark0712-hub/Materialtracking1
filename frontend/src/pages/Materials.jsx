@@ -297,12 +297,17 @@ const Materials = () => {
                        <th className="px-8 py-6 text-right italic">Action</th>
                     </tr>
                  </thead>
-                 <tbody className="divide-y divide-slate-50">
+                  <tbody className="divide-y divide-slate-50">
                     {requests.map((r) => (
                        <tr key={r._id} className="hover:bg-slate-50/50 transition-all">
                           <td className="px-8 py-7">
                              <p className="font-black text-slate-900 uppercase">{isManagement ? r.employee?.name : r.material?.name}</p>
                              <p className="text-[9px] text-slate-400 font-bold uppercase">{isManagement ? r.employee?.role : 'ID: ' + r.material?._id?.slice(-4)}</p>
+                             {r.adminComment && (
+                               <p className="text-[10px] text-primary-500 font-bold italic mt-2 border-l-2 border-primary-500 pl-2">
+                                 Admin Note: {r.adminComment}
+                               </p>
+                             )}
                           </td>
                           <td className="px-8 py-7 font-black text-slate-900">{r.quantity} {r.material?.unit}</td>
                           <td className="px-8 py-7 text-slate-400 text-xs font-bold">{new Date(r.createdAt).toLocaleDateString()}</td>
@@ -314,6 +319,11 @@ const Materials = () => {
                              }`}>
                                 {r.status}
                              </span>
+                             {r.status !== 'Pending' && (
+                               <p className="text-[8px] text-slate-400 font-bold uppercase mt-1">
+                                 {r.status === 'Approved' ? 'Approved' : 'Rejected'} on {new Date(r.updatedAt).toLocaleDateString()}
+                               </p>
+                             )}
                           </td>
                           <td className="px-8 py-7 text-right">
                              {isManagement && r.status === 'Pending' ? (

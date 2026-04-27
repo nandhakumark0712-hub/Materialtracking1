@@ -118,6 +118,7 @@ exports.handleMaterialApproval = async (req, res, next) => {
         }
 
         matReq.status = status;
+        matReq.adminComment = adminComment;
         matReq.approvedBy = req.user.id;
         await matReq.save();
 
