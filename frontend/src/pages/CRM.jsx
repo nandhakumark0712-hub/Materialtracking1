@@ -80,7 +80,8 @@ const CRM = () => {
 
   const fetchData = async () => {
     try {
-      const [resCust, resDeals, resStats, resFollows, resLead, resPipe, resMat, resStaff] = await Promise.all([
+      setLoading(true);
+      const results = await Promise.allSettled([
         API.get('/api/crm/customers'),
         API.get('/api/crm/deals'),
         API.get('/api/crm/stats'),
@@ -90,17 +91,22 @@ const CRM = () => {
         API.get('/api/materials'),
         API.get('/api/hrms/employees')
       ]);
-      setCustomers(resCust.data.data);
-      setDeals(resDeals.data.data);
-      setStats(resStats.data.data);
-      setFollowUps(resFollows.data.data);
-      setLeaderboard(resLead.data.data);
-      setPipelineData(resPipe.data.data);
-      setMaterials(resMat.data.data);
-      setSalesExecutives(resStaff.data.data.filter(e => ['Sales Team', 'Manager'].includes(e.role)));
+
+      if (results[0].status === 'fulfilled') setCustomers(results[0].value.data.data);
+      if (results[1].status === 'fulfilled') setDeals(results[1].value.data.data);
+      if (results[2].status === 'fulfilled') setStats(results[2].value.data.data);
+      if (results[3].status === 'fulfilled') setFollowUps(results[3].value.data.data);
+      if (results[4].status === 'fulfilled') setLeaderboard(results[4].value.data.data);
+      if (results[5].status === 'fulfilled') setPipelineData(results[5].value.data.data);
+      if (results[6].status === 'fulfilled') setMaterials(results[6].value.data.data);
+      
+      if (results[7].status === 'fulfilled' && results[7].value.data.data) {
+        setSalesExecutives(results[7].value.data.data.filter(e => ['Sales Team', 'Manager'].includes(e.role)));
+      }
+
       setLoading(false);
     } catch (err) {
-      console.error(err);
+      console.error('CRM Fetch Error:', err);
       setLoading(false);
     }
   };
