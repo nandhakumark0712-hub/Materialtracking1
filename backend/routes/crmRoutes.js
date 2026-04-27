@@ -4,7 +4,7 @@ const {
     createDeal, getDeals, scheduleFollowUp,
     updateDeal, deleteDeal, updateCustomer, deleteCustomer,
     getFollowUps, updateFollowUp, getLeaderboard, getPipeline,
-    handleDealApproval
+    handleDealApproval, handleLeadApproval
 } = require('../controllers/crmController');
 const { protect, authorize } = require('../middleware/authMiddleware');
 
@@ -23,6 +23,9 @@ router.route('/customers')
 router.route('/customers/:id')
     .put(updateCustomer)
     .delete(deleteCustomer);
+
+// Lead Approval (Admin/Manager)
+router.put('/customers/:id/approval', authorize('Admin', 'Manager'), handleLeadApproval);
 
 router.route('/deals')
     .get(getDeals)

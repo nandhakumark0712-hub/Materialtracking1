@@ -47,6 +47,9 @@ exports.getCustomers = async (req, res, next) => {
     try {
         const query = req.user.role === 'Admin' ? {} : { assignedTo: req.user.id };
         const customers = await Customer.find(query).sort('-createdAt');
+        
+        // Filter logic for frontend safety (though usually handled by frontend tabs)
+        // Converted/Customer tab should only see Approved leads
         res.status(200).json({ success: true, count: customers.length, data: customers });
     } catch (err) {
         next(err);
@@ -63,6 +66,11 @@ exports.updateCustomer = async (req, res, next) => {
 
         if (customer.assignedTo.toString() !== req.user.id && req.user.role !== 'Admin') {
             return res.status(401).json({ message: 'Not authorized' });
+        }
+
+        // Reset approval if transitioning to Qualified or Converted
+        if ((req.body.status === 'Qualified' || req.body.status === 'Converted') && customer.status !== req.body.status) {
+            req.body.approvalStatus = 'Pending';
         }
 
         customer = await Customer.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
@@ -197,6 +205,40 @@ exports.handleDealApproval = async (req, res, next) => {
         if (io) io.emit('notification', { userId: deal.assignedTo, message: `Deal ${status}` });
 
         res.status(200).json({ success: true, data: deal });
+    } catch (err) {
+        next(err);
+    }
+};
+
+// @desc    Handle Lead Approval
+// @route   PUT /api/crm/customers/:id/approval
+// @access  Private (Admin/Manager)
+exports.handleLeadApproval = async (req, res, next) => {
+    try {
+        const { approvalStatus, adminComment } = req.body;
+        const customer = await Customer.findById(req.params.id);
+
+        if (!customer) return res.status(404).json({ message: 'Lead not found' });
+
+        customer.approvalStatus = approvalStatus;
+        if (adminComment) customer.adminComment = adminComment;
+        
+        // Auto-convert to Customer if approved
+        if (approvalStatus === 'Approved') {
+            customer.isCustomer = true;
+        }
+
+        await customer.save();
+
+        // Notify Sales Person
+        await Notification.create({
+            to: customer.assignedTo,
+            title: 'Lead Approval Update',
+            message: `Your lead "${customer.name}" has been ${approvalStatus}.`,
+            type: 'General'
+        });
+
+        res.status(200).json({ success: true, data: customer });
     } catch (err) {
         next(err);
     }

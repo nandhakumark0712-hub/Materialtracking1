@@ -20,6 +20,12 @@ const customerSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    approvalStatus: {
+        type: String,
+        enum: ['Pending', 'Approved', 'Rejected'],
+        default: 'Pending'
+    },
+    adminComment: String,
     source: {
         type: String,
         default: 'Direct'

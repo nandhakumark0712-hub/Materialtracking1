@@ -5,13 +5,16 @@ import {
   CheckCircle, Clock, Layout, Loader2, Briefcase,
   PieChart, Shield, MoreHorizontal, MessageSquare,
   Award, BarChart3, Star, Filter, ArrowUpRight,
-  UserPlus, Zap, History, Bell, IndianRupee, Trash2, Edit, Inbox
+  UserPlus, Zap, History, Bell, IndianRupee, Trash2, Edit, Inbox,
+  ShieldCheck, XCircle, CheckCircle2
 } from 'lucide-react';
 import { Line, Bar, Doughnut } from 'react-chartjs-2';
 import API from '../utils/api';
 import Modal from '../components/Modal';
+import { useSelector } from 'react-redux';
 
 const CRM = () => {
+  const { user } = useSelector(state => state.auth);
   const [customers, setCustomers] = useState([]);
   const [deals, setDeals] = useState([]);
   const [stats, setStats] = useState(null);
@@ -51,7 +54,7 @@ const CRM = () => {
 
   const fetchData = async () => {
     try {
-      const [resCust, resDeals, resStats, resFollows, resLead, resPipe] = await Promise.all([
+      const [resCust, resDeals, resStats, resFollows, resLead, resPipe, resMat] = await Promise.all([
         API.get('/api/crm/customers'),
         API.get('/api/crm/deals'),
         API.get('/api/crm/stats'),
@@ -66,11 +69,7 @@ const CRM = () => {
       setFollowUps(resFollows.data.data);
       setLeaderboard(resLead.data.data);
       setPipelineData(resPipe.data.data);
-      setMaterials(resCust.data.data.materials || []); // Fallback for safety
-      
-      // Correcting materials fetch
-      const matRes = await API.get('/api/materials');
-      setMaterials(matRes.data.data);
+      setMaterials(resMat.data.data);
       setLoading(false);
     } catch (err) {
       console.error(err);
@@ -100,6 +99,16 @@ const CRM = () => {
       fetchData();
     } catch (error) {
       alert('Error updating lead');
+    }
+  };
+
+  const handleApproveLead = async (leadId, status) => {
+    try {
+      await API.put(`/api/crm/customers/${leadId}/approval`, { approvalStatus: status });
+      setIsManageLeadModalOpen(false);
+      fetchData();
+    } catch (error) {
+      alert('Error in approval process');
     }
   };
 
@@ -153,9 +162,20 @@ const CRM = () => {
   };
 
   const filteredLeads = customers.filter(c => 
-    c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (c.company && c.company.toLowerCase().includes(searchTerm.toLowerCase()))
+    !c.isCustomer && (
+      c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (c.company && c.company.toLowerCase().includes(searchTerm.toLowerCase()))
+    )
   );
+
+  const filteredCustomers = customers.filter(c => 
+    c.isCustomer && (
+      c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (c.company && c.company.toLowerCase().includes(searchTerm.toLowerCase()))
+    )
+  );
+
+  const isManagement = ['Admin', 'Manager'].includes(user?.role);
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500 pb-20">
@@ -163,13 +183,13 @@ const CRM = () => {
         <div>
            <div className="flex items-center space-x-3 mb-2">
               <Zap className="text-primary-500 fill-primary-500" size={16} md:size={20} />
-              <span className="text-primary-500 font-black uppercase text-[8px] md:text-[10px] tracking-[0.2em] md:tracking-[0.3em]">Sales Engine Pro</span>
+               <span className="text-primary-500 font-black uppercase text-[8px] md:text-[10px] tracking-[0.2em] md:tracking-[0.3em]">Sales Engine Pro</span>
            </div>
            <h1 className="text-2xl md:text-4xl font-black text-slate-900 italic tracking-tight">CRM Command Center</h1>
            <p className="text-slate-500 font-medium mt-1 text-xs md:text-sm">Intelligence-driven acquisition and pipeline optimization.</p>
         </div>
         <div className="flex bg-white p-1 md:p-2 rounded-[1rem] md:rounded-[1.5rem] shadow-sm border border-slate-100 italic overflow-x-auto scrollbar-hide w-full xl:w-auto">
-           {['Overview', 'Leads', 'Pipeline', 'Follow-ups', 'Performance'].map(tab => (
+           {['Overview', 'Leads', 'Customers', 'Pipeline', 'Follow-ups', 'Performance'].map(tab => (
               <button 
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -188,7 +208,7 @@ const CRM = () => {
            <Loader2 className="animate-spin text-primary-500 mb-6" size={64} />
            <p className="text-slate-400 font-black uppercase tracking-[0.3em] text-xs italic">Syncing CRM Neural Grid...</p>
         </div>
-      ) : activeTab === 'Overview' && stats ? (
+      ) : (activeTab === 'Overview' && stats) ? (
         <div className="space-y-8">
            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
               {[
@@ -278,27 +298,28 @@ const CRM = () => {
               </div>
            </div>
         </div>
-      ) : activeTab === 'Leads' ? (
+      ) : (activeTab === 'Leads' || activeTab === 'Customers') ? (
         <div className="bg-white rounded-[3rem] shadow-sm border border-slate-100 overflow-hidden">
            <div className="p-8 border-b border-slate-50 flex flex-col md:flex-row justify-between items-center bg-slate-50/20 gap-6">
               <div className="relative w-full md:w-96">
                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
                  <input 
                     className="input-field pl-12" 
-                    placeholder="Search leads by company or name..." 
+                    placeholder={`Search ${activeTab.toLowerCase()}...`} 
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                  />
               </div>
               <div className="flex space-x-4 w-full md:w-auto">
-                 <button className="flex-1 md:flex-none p-4 bg-slate-50 text-slate-400 rounded-2xl hover:text-primary-500 transition-all border border-slate-100"><Filter size={20} /></button>
-                 <button 
-                   onClick={() => setIsLeadModalOpen(true)}
-                   className="flex-1 md:flex-none btn-primary flex items-center justify-center space-x-3 px-8"
-                 >
-                    <UserPlus size={20} />
-                    <span className="whitespace-nowrap">Capture Lead</span>
-                 </button>
+                 {activeTab === 'Leads' && (
+                   <button 
+                     onClick={() => setIsLeadModalOpen(true)}
+                     className="flex-1 md:flex-none btn-primary flex items-center justify-center space-x-3 px-8"
+                   >
+                      <UserPlus size={20} />
+                      <span className="whitespace-nowrap">Capture Lead</span>
+                   </button>
+                 )}
               </div>
            </div>
            <div className="overflow-x-auto">
@@ -307,13 +328,13 @@ const CRM = () => {
                     <tr>
                        <th className="px-8 py-6 italic">Prospect Entity</th>
                        <th className="px-8 py-6 italic">Lead Score</th>
-                       <th className="px-8 py-6 italic">Source</th>
-                       <th className="px-8 py-6 italic">Pipeline Stage</th>
+                       <th className="px-8 py-6 italic">Status / Phase</th>
+                       <th className="px-8 py-6 italic">Approval State</th>
                        <th className="px-8 py-6 text-right italic">Action</th>
                     </tr>
                  </thead>
                  <tbody className="divide-y divide-slate-50">
-                    {filteredLeads.map(c => (
+                    {(activeTab === 'Leads' ? filteredLeads : filteredCustomers).map(c => (
                        <tr key={c._id} className="hover:bg-slate-50/50 group transition-all italic">
                           <td className="px-8 py-6">
                              <div className="flex items-center space-x-4">
@@ -335,15 +356,21 @@ const CRM = () => {
                              </div>
                           </td>
                           <td className="px-8 py-6">
-                             <span className="text-[10px] font-black uppercase text-slate-400 px-3 py-1 bg-slate-50 rounded-lg">{c.source || 'Direct'}</span>
-                          </td>
-                          <td className="px-8 py-6">
                              <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${
                                 ['Converted', 'Qualified'].includes(c.status) ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 
                                 ['Negotiation', 'Prospect'].includes(c.status) ? 'bg-amber-50 text-amber-600 border-amber-100' : 
                                 'bg-primary-50 text-primary-500 border-primary-100'
                              }`}>
                                 {c.status}
+                             </span>
+                          </td>
+                          <td className="px-8 py-6">
+                             <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${
+                                c.approvalStatus === 'Approved' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 
+                                c.approvalStatus === 'Pending' ? 'bg-amber-50 text-amber-600 border-amber-100' : 
+                                'bg-rose-50 text-rose-600 border-rose-100'
+                             }`}>
+                                {c.approvalStatus || 'New'}
                              </span>
                           </td>
                           <td className="px-8 py-6 text-right">
@@ -401,12 +428,6 @@ const CRM = () => {
                              </div>
                           </div>
                        ))}
-                       {deals.filter(d => d.status === stage).length === 0 && (
-                          <div className="py-20 flex flex-col items-center justify-center text-slate-200">
-                             <Inbox size={32} strokeWidth={1} />
-                             <p className="text-[9px] font-black uppercase mt-4">Empty Vector</p>
-                          </div>
-                       )}
                     </div>
                  </div>
               ))}
@@ -424,77 +445,7 @@ const CRM = () => {
                     <Calendar size={18} />
                     <span>Log Activity</span>
                  </button>
-                 <button className="w-full py-4 bg-white/5 hover:bg-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-white/5 transition-all">Export Task List</button>
               </div>
-              
-              <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
-                 <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-6 italic">Risk Indicators</h4>
-                 <div className="space-y-4">
-                    <div className="flex items-center justify-between text-xs font-bold">
-                       <span className="text-slate-500 italic">High Priority</span>
-                       <span className="text-rose-500 font-black">{followUps.filter(f => f.priority === 'High' && f.status === 'Pending').length}</span>
-                    </div>
-                    <div className="flex items-center justify-between text-xs font-bold">
-                       <span className="text-slate-500 italic">Due Today</span>
-                       <span className="text-amber-500 font-black">{followUps.filter(f => f.status === 'Pending').length}</span>
-                    </div>
-                 </div>
-              </div>
-
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">Deal Requirements (Items)</label>
-                   <button 
-                     type="button"
-                     className="text-primary-500 font-black text-[10px] uppercase"
-                     onClick={() => setDealForm({...dealForm, items: [...dealForm.items, { material: '', quantity: 1 }]})}
-                   >
-                     + Add Item
-                   </button>
-                </div>
-                {dealForm.items.map((item, index) => (
-                   <div key={index} className="grid grid-cols-12 gap-4 items-end">
-                      <div className="col-span-7">
-                         <select 
-                           className="input-field"
-                           value={item.material}
-                           onChange={(e) => {
-                              const newItems = [...dealForm.items];
-                              newItems[index].material = e.target.value;
-                              setDealForm({...dealForm, items: newItems});
-                           }}
-                         >
-                            <option value="">Select Item (A/C, Mobile, etc.)</option>
-                            {materials.map(m => (
-                               <option key={m._id} value={m._id}>{m.name} ({m.quantity} {m.unit} in stock)</option>
-                            ))}
-                         </select>
-                      </div>
-                      <div className="col-span-3">
-                         <input 
-                           type="number" 
-                           className="input-field" 
-                           placeholder="Qty" 
-                           value={item.quantity}
-                           onChange={(e) => {
-                              const newItems = [...dealForm.items];
-                              newItems[index].quantity = parseInt(e.target.value);
-                              setDealForm({...dealForm, items: newItems});
-                           }}
-                         />
-                      </div>
-                      <div className="col-span-2">
-                         <button 
-                           type="button"
-                           onClick={() => setDealForm({...dealForm, items: dealForm.items.filter((_, i) => i !== index)})}
-                           className="p-4 text-rose-500 hover:bg-rose-50 rounded-xl"
-                         >
-                            <Trash2 size={16} />
-                         </button>
-                      </div>
-                   </div>
-                ))}
-             </div>
            </div>
 
            <div className="lg:col-span-3 space-y-6">
@@ -525,12 +476,6 @@ const CRM = () => {
                     </div>
                  </div>
               ))}
-              {followUps.length === 0 && (
-                <div className="py-40 bg-white rounded-[4rem] border border-dashed border-slate-100 flex flex-col items-center justify-center">
-                   <Zap size={64} className="text-slate-50 mb-6" strokeWidth={1} />
-                   <p className="text-slate-300 font-black uppercase text-xs italic tracking-[0.3em]">No pending outreach vectors detected.</p>
-                </div>
-              )}
            </div>
         </div>
       ) : activeTab === 'Performance' ? (
@@ -541,63 +486,6 @@ const CRM = () => {
                  <div className="h-80 flex items-center justify-center">
                     <Doughnut data={pipelineChartData} options={{ maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, font: { weight: 'bold' } } } } }} />
                  </div>
-              </div>
-              <div className="bg-white p-10 rounded-[3.5rem] border border-slate-100 shadow-sm">
-                 <h3 className="text-xl font-black italic mb-10 flex items-center"><BarChart3 className="mr-3 text-primary-500" /> Lead Conversion Mix</h3>
-                 <div className="h-80">
-                    <Bar 
-                      data={{
-                        labels: ['New', 'Contacted', 'Qualified', 'Negotiation', 'Won'],
-                        datasets: [{
-                          data: [stats.totalLeads, 12, 8, 5, leaderboard.reduce((acc, curr) => acc + curr.deals, 0)],
-                          backgroundColor: '#0ea5e9',
-                          borderRadius: 12,
-                        }]
-                      }}
-                      options={{ maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { grid: { display: false } } } }}
-                    />
-                 </div>
-              </div>
-           </div>
-
-           <div className="bg-slate-900 rounded-[3.5rem] p-12 text-white relative overflow-hidden shadow-2xl">
-              <div className="absolute top-0 right-0 w-96 h-96 bg-primary-500/10 rounded-full blur-[120px]"></div>
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6 relative z-10">
-                 <div>
-                    <h3 className="text-3xl font-black italic tracking-tighter">Leaderboard Matrix</h3>
-                    <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest mt-2">Historical conversion performance by agent</p>
-                 </div>
-                 <div className="flex bg-white/5 p-2 rounded-2xl border border-white/5">
-                    <button className="px-6 py-2 bg-primary-500 text-white rounded-xl text-[10px] font-black uppercase">This Month</button>
-                    <button className="px-6 py-2 text-white/40 rounded-xl text-[10px] font-black uppercase">All Time</button>
-                 </div>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 relative z-10">
-                 {leaderboard.map((agent, i) => (
-                    <div key={i} className="bg-white/5 p-8 rounded-[2.5rem] border border-white/10 hover:bg-white/10 transition-all group">
-                       <div className="flex justify-between items-start mb-6">
-                          <div className="w-16 h-16 rounded-[2rem] bg-white border-2 border-primary-500 overflow-hidden">
-                             <img src={`https://ui-avatars.com/api/?name=${agent.name}&background=0ea5e9&color=fff`} alt={agent.name} />
-                          </div>
-                          <span className="text-[2rem] font-black text-white/5 italic group-hover:text-primary-500 transition-colors">#{i+1}</span>
-                       </div>
-                       <h4 className="text-xl font-black italic mb-1">{agent.name}</h4>
-                       <p className="text-primary-500 font-black uppercase text-[10px] tracking-widest mb-8">Agent Level 0{4-i}</p>
-                       
-                       <div className="grid grid-cols-2 gap-4 pt-6 border-t border-white/10">
-                          <div>
-                             <p className="text-[9px] font-black text-white/20 uppercase tracking-widest">Revenue</p>
-                             <p className="text-lg font-black italic">₹{(agent.revenue/1000).toFixed(1)}k</p>
-                          </div>
-                          <div>
-                             <p className="text-[9px] font-black text-white/20 uppercase tracking-widest">Efficiency</p>
-                             <p className="text-lg font-black italic">94%</p>
-                          </div>
-                       </div>
-                    </div>
-                 ))}
-                 {leaderboard.length === 0 && <p className="col-span-full py-20 text-center text-white/10 font-black uppercase text-xs tracking-widest italic border border-dashed border-white/10 rounded-[3rem]">Awaiting conversion metrics...</p>}
               </div>
            </div>
         </div>
@@ -626,71 +514,83 @@ const CRM = () => {
                   <input className="input-field" value={leadForm.phone} onChange={(e) => setLeadForm({...leadForm, phone: e.target.value})} placeholder="+91 98765 43210" />
                </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-               <div>
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1 italic">Source Vector</label>
-                  <select className="input-field" value={leadForm.source} onChange={e => setLeadForm({...leadForm, source: e.target.value})}>
-                     <option>Direct</option>
-                     <option>Social Media</option>
-                     <option>Referral</option>
-                     <option>Event</option>
-                     <option>Cold Call</option>
-                  </select>
-               </div>
-               <div>
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1 italic">Initial Score</label>
-                  <input type="number" className="input-field" value={leadForm.score} onChange={e => setLeadForm({...leadForm, score: e.target.value})} />
-               </div>
-            </div>
             <button type="submit" disabled={isSubmitting} className="w-full btn-primary py-5 mt-4 shadow-xl shadow-primary-500/20">
                {isSubmitting ? 'Establishing Protocol...' : 'Activate Lead Profile'}
             </button>
          </form>
       </Modal>
 
-      {/* Log FollowUp Modal */}
-      <Modal isOpen={isFollowUpModalOpen} onClose={() => setIsFollowUpModalOpen(false)} title="Log Outreach Vector">
-         <form onSubmit={handleCreateFollowUp} className="space-y-6">
-            <div>
-               <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1 italic">Task Headline</label>
-               <input required className="input-field" value={followUpForm.title} onChange={e => setFollowUpForm({...followUpForm, title: e.target.value})} placeholder="Final Negotiation Call" />
+      {/* Manage Lead Modal */}
+      <Modal isOpen={isManageLeadModalOpen} onClose={() => setIsManageLeadModalOpen(false)} title="Lead Command">
+         {selectedLead && (
+            <div className="space-y-8">
+               <div className="bg-slate-50 p-8 rounded-[3rem] border border-slate-100 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-8 opacity-5"><Target size={80} /></div>
+                  <h4 className="text-2xl font-black text-slate-900 italic mb-1">{selectedLead.name}</h4>
+                  <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest italic mb-6">{selectedLead.company || 'Individual Client'}</p>
+                  
+                  <div className="flex items-center space-x-4">
+                     <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-4 py-1.5 rounded-full border border-emerald-100">Score: {selectedLead.score}%</span>
+                     <span className="text-[10px] font-black text-slate-400 bg-white px-4 py-1.5 rounded-full border border-slate-100">{selectedLead.approvalStatus || 'New'}</span>
+                  </div>
+               </div>
+               
+               <div>
+                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 px-1 italic">Transition Pipeline Stage</label>
+                  <div className="grid grid-cols-3 gap-3">
+                     {['New', 'Qualified', 'Converted'].map(status => (
+                        <button 
+                           key={status}
+                           onClick={() => handleUpdateLead(selectedLead._id, { status })}
+                           className={`py-4 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all border ${
+                              selectedLead.status === status 
+                                 ? 'bg-primary-500 text-white border-primary-500 shadow-xl shadow-primary-500/20' 
+                                 : 'bg-white text-slate-500 border-slate-100 hover:bg-slate-50'
+                           }`}
+                        >
+                           {status}
+                        </button>
+                     ))}
+                  </div>
+               </div>
+
+               {isManagement && (selectedLead.status === 'Qualified' || selectedLead.status === 'Converted') && selectedLead.approvalStatus !== 'Approved' && (
+                  <div className="space-y-4">
+                     <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 italic">Administrative Authorization</label>
+                     <div className="grid grid-cols-2 gap-4">
+                        <button 
+                           onClick={() => handleApproveLead(selectedLead._id, 'Approved')}
+                           className="py-5 bg-emerald-500 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-600 transition-all flex items-center justify-center space-x-2"
+                        >
+                           <ShieldCheck size={18} />
+                           <span>Approve Lead</span>
+                        </button>
+                        <button 
+                           onClick={() => handleApproveLead(selectedLead._id, 'Rejected')}
+                           className="py-5 bg-rose-500 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-600 transition-all flex items-center justify-center space-x-2"
+                        >
+                           <XCircle size={18} />
+                           <span>Reject</span>
+                        </button>
+                     </div>
+                  </div>
+               )}
+
+               <div className="pt-6 border-t border-slate-100 grid grid-cols-1 gap-4">
+                  <button 
+                    className="py-5 bg-rose-50 text-rose-500 rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-rose-100 transition-all flex items-center justify-center space-x-2"
+                    onClick={() => {
+                       if(window.confirm('Remove lead record?')) {
+                          API.delete(`/api/crm/customers/${selectedLead._id}`).then(() => { setIsManageLeadModalOpen(false); fetchData(); });
+                       }
+                    }}
+                  >
+                     <Trash2 size={16} />
+                     <span>Purge Record</span>
+                  </button>
+               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-               <div>
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1 italic">Target Prospect</label>
-                  <select required className="input-field" value={followUpForm.lead} onChange={e => setFollowUpForm({...followUpForm, lead: e.target.value})}>
-                     <option value="">Select Lead</option>
-                     {customers.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}
-                  </select>
-               </div>
-               <div>
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1 italic">Execution Date</label>
-                  <input required type="date" className="input-field" value={followUpForm.date} onChange={e => setFollowUpForm({...followUpForm, date: e.target.value})} />
-               </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-               <div>
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1 italic">Medium</label>
-                  <select className="input-field" value={followUpForm.type} onChange={e => setFollowUpForm({...followUpForm, type: e.target.value})}>
-                     <option>Call</option>
-                     <option>Meeting</option>
-                     <option>Email</option>
-                     <option>Other</option>
-                  </select>
-               </div>
-               <div>
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1 italic">Priority Matrix</label>
-                  <select className="input-field" value={followUpForm.priority} onChange={e => setFollowUpForm({...followUpForm, priority: e.target.value})}>
-                     <option>Low</option>
-                     <option>Medium</option>
-                     <option>High</option>
-                  </select>
-               </div>
-            </div>
-            <button type="submit" disabled={isSubmitting} className="w-full btn-primary py-5 mt-4">
-               {isSubmitting ? 'Logging Task...' : 'Establish Task Vector'}
-            </button>
-         </form>
+         )}
       </Modal>
 
       {/* Register Deal Modal */}
@@ -710,7 +610,7 @@ const CRM = () => {
                      onChange={(e) => setDealForm({...dealForm, customer: e.target.value})}
                   >
                      <option value="">Select Lead</option>
-                     {customers.map(c => (
+                     {customers.filter(c => c.isCustomer).map(c => (
                         <option key={c._id} value={c._id}>{c.name}</option>
                      ))}
                   </select>
@@ -723,9 +623,8 @@ const CRM = () => {
                   </div>
                </div>
             </div>
-            <p className="text-[10px] font-bold text-slate-400 italic px-2">Note: All new opportunities require administrative authorization before final execution.</p>
             <button type="submit" disabled={isSubmitting} className="w-full btn-primary py-5 mt-4 shadow-xl shadow-primary-500/20">
-               {isSubmitting ? 'Submitting for Review...' : 'Establish Opportunity Vector'}
+               Establish Opportunity Vector
             </button>
          </form>
       </Modal>
@@ -748,85 +647,18 @@ const CRM = () => {
                   <p className="text-[10px] font-black uppercase text-white/40 tracking-widest italic">Prospect: {selectedDeal.customer?.name}</p>
                   <div className="mt-8 pt-8 border-t border-white/5 space-y-3">
                      <p className="text-4xl font-black text-primary-500">₹{selectedDeal.value.toLocaleString()}</p>
-                     {selectedDeal.items?.length > 0 && (
-                        <div className="pt-4 space-y-2">
-                           <p className="text-[10px] font-black uppercase text-white/20 tracking-widest">Linked Inventory</p>
-                           {selectedDeal.items.map((item, i) => (
-                              <div key={i} className="flex justify-between items-center bg-white/5 p-3 rounded-xl border border-white/5">
-                                 <span className="text-xs font-bold text-white/70">{item.material?.name || 'Loading item...'}</span>
-                                 <span className="text-xs font-black text-primary-500">{item.quantity} Units</span>
-                              </div>
-                           ))}
-                        </div>
-                     )}
                   </div>
                </div>
                
                <div>
                   <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 px-1 italic">Transition Pipeline Status</label>
-                  <div className="grid grid-cols-5 gap-3">
+                  <div className="grid grid-cols-4 gap-3">
                      {['Pending', 'Approved', 'Won', 'Lost'].map(status => (
                         <button 
                            key={status}
-                           disabled={
-                              (status === 'Won' || status === 'Lost') && selectedDeal.status !== 'Approved' && selectedDeal.status !== 'Won' && selectedDeal.status !== 'Lost'
-                           }
                            onClick={() => handleUpdateDeal(selectedDeal._id, status)}
                            className={`py-4 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all border ${
                               selectedDeal.status === status 
-                                 ? 'bg-primary-500 text-white border-primary-500 shadow-xl shadow-primary-500/20' 
-                                 : 'bg-white text-slate-500 border-slate-100 hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed'
-                           }`}
-                        >
-                           {status}
-                        </button>
-                     ))}
-                  </div>
-                  {selectedDeal.status === 'Pending' && <p className="text-[9px] text-amber-500 font-bold mt-4 italic">* Awaiting Admin Authorization to unlock Won/Lost capability.</p>}
-                  {selectedDeal.status === 'Approved' && <p className="text-[9px] text-emerald-500 font-bold mt-4 italic">* Deal Approved! You can now move this to Won to recognize revenue.</p>}
-               </div>
-
-               <div className="pt-6 border-t border-slate-100 flex gap-4">
-                  <button 
-                    className="flex-1 py-5 bg-slate-50 text-slate-400 rounded-2xl text-[9px] font-black uppercase tracking-widest hover:text-rose-500 transition-all flex items-center justify-center space-x-2"
-                    onClick={() => {
-                       if(window.confirm('Delete this deal record?')) {
-                          API.delete(`/api/crm/deals/${selectedDeal._id}`).then(() => { setIsManageDealModalOpen(false); fetchData(); });
-                       }
-                    }}
-                  >
-                     <Trash2 size={16} />
-                     <span>Remove Record</span>
-                  </button>
-               </div>
-            </div>
-         )}
-      </Modal>
-
-      {/* Manage Lead Modal */}
-      <Modal isOpen={isManageLeadModalOpen} onClose={() => setIsManageLeadModalOpen(false)} title="Lead Command">
-         {selectedLead && (
-            <div className="space-y-8">
-               <div className="bg-slate-50 p-8 rounded-[3rem] border border-slate-100 relative overflow-hidden">
-                  <div className="absolute top-0 right-0 p-8 opacity-5"><Target size={80} /></div>
-                  <h4 className="text-2xl font-black text-slate-900 italic mb-1">{selectedLead.name}</h4>
-                  <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest italic mb-6">{selectedLead.company || 'Individual Client'}</p>
-                  
-                  <div className="flex items-center space-x-4">
-                     <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-4 py-1.5 rounded-full border border-emerald-100">Score: {selectedLead.score}%</span>
-                     <span className="text-[10px] font-black text-slate-400 bg-white px-4 py-1.5 rounded-full border border-slate-100">{selectedLead.source}</span>
-                  </div>
-               </div>
-               
-               <div>
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 px-1 italic">Transition Pipeline Stage</label>
-                  <div className="grid grid-cols-3 gap-3">
-                     {['New', 'Qualified', 'Converted'].map(status => (
-                        <button 
-                           key={status}
-                           onClick={() => handleUpdateLead(selectedLead._id, { status, isCustomer: status === 'Converted' })}
-                           className={`py-4 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all border ${
-                              selectedLead.status === status 
                                  ? 'bg-primary-500 text-white border-primary-500 shadow-xl shadow-primary-500/20' 
                                  : 'bg-white text-slate-500 border-slate-100 hover:bg-slate-50'
                            }`}
@@ -835,24 +667,6 @@ const CRM = () => {
                         </button>
                      ))}
                   </div>
-               </div>
-
-               <div className="pt-6 border-t border-slate-100 grid grid-cols-2 gap-4">
-                  <button className="py-5 bg-white border border-slate-100 text-slate-500 rounded-2xl text-[9px] font-black uppercase tracking-widest hover:border-primary-500 hover:text-primary-500 transition-all flex items-center justify-center space-x-2">
-                     <Edit size={16} />
-                     <span>Edit Intel</span>
-                  </button>
-                  <button 
-                    className="py-5 bg-rose-50 text-rose-500 rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-rose-100 transition-all flex items-center justify-center space-x-2"
-                    onClick={() => {
-                       if(window.confirm('Remove lead record?')) {
-                          API.delete(`/api/crm/customers/${selectedLead._id}`).then(() => { setIsManageLeadModalOpen(false); fetchData(); });
-                       }
-                    }}
-                  >
-                     <Trash2 size={16} />
-                     <span>Purge Record</span>
-                  </button>
                </div>
             </div>
          )}
