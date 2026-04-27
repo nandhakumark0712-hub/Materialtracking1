@@ -177,6 +177,21 @@ const CRM = () => {
     }
   };
 
+  const handleCreateFollowUp = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      await API.post('/api/crm/followups', followUpForm);
+      setIsFollowUpModalOpen(false);
+      fetchData();
+      setFollowUpForm({ title: '', date: '', type: 'Call', notes: '', priority: 'Medium', lead: '' });
+    } catch (err) {
+      alert('Failed to schedule follow-up');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const pipelineChartData = {
     labels: pipelineData.map(p => p._id),
     datasets: [{
