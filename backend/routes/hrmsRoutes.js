@@ -17,7 +17,7 @@ router.get('/leaves/my', getMyLeaves);
 router.get('/payroll/my', getMyPayroll);
 
 // Shared staff retrieval
-router.get('/employees', authorize('HR', 'Admin', 'Manager'), getEmployees);
+router.get('/employees', authorize('HR', 'Admin', 'Manager', 'Sales Team'), getEmployees);
 
 // HR/Admin specific routes
 router.get('/stats', authorize('HR', 'Admin'), getHRStats);
